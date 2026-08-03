@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum PaymentType {
+  SPLIT // 30% no ato + 70% do saldo até finalDueDays antes do evento
+  FULL // pagamento único, devido até finalDueDays antes do evento (ex. Quadra de Areia)
+}
+
+enum PricingUnit {
+  FLAT // preço fixo da locação (priceCents = valor total)
+  HOURLY // cobrado por hora (priceCents = valor da hora; total = priceCents * horas)
+}
+
+// Regras reais informadas pela AMMA (Associação Médica do Médio Araguaia) em 2026-07-23.
+model Space {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  description String
+  photos      String // JSON stringificado com URLs/paths das fotos (placeholder por enquanto)
+
+  capacity       Int? // nº máx. de convidados; null para a quadra (usa maxHoursPerBooking)
+  minAdvanceDays Int // antecedência mínima exigida para reservar
+
+  paymentType  PaymentType
+  finalDueDays Int // dias antes do evento em que o saldo (SPLIT) ou o pagamento único (FULL) vence
+
+  // Limite de reservas por associado (CPF) neste espaço; null = sem limite.
+  monthlyLimitPerMember Int?
+  yearlyLimitPerMember  Int?
+
+  pricingUnit         PricingUnit
+  priceCents          Int // FLAT: valor total da locação. HOURLY: valor da hora.
+  maxHoursPerBooking  Int? // limite de horas por reserva (relevante p/ HOURLY, ex. quadra = 2h)
+  // TODO(cliente): valor da hora adicional além da duração máxima não foi informado ainda.
+  overtimeHourlyCents Int?
+
+  // JSON com as opções de turno (ex. [{"label":"13h às 21h","startHour":13,"durationHours":8}]).
+  // null para espaços sem turno fixo (ex. quadra, que usa horário livre dentro do funcionamento).
+  shiftOptions String?
+
+  // Janela de funcionamento para espaços sem turno fixo (ex. quadra: 8-22h). Null quando shiftOptions
+  // já define os horários possíveis.
+  operatingStartHour Int?
+  operatingEndHour   Int?
+
+  // Bloqueia o agendamento de outros espaços dessa mesma categoria no mesmo dia
+  // (Salão de Festa, Área Externa e Cozinha Gourmet só podem ter 1 evento por dia, no total).
+  exclusiveVenue Boolean @default(false)
+
+  // TODO(você): ID do Google Calendar dedicado a este espaço.
+  googleCalendarId String?
+  bookings         Booking[]
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+enum BookingStatus {
+  AWAITING_DEPOSIT // aguardando o primeiro pagamento (sinal de 30%, ou o valor cheio se FULL)
+  AWAITING_FINAL_PAYMENT // sinal pago, aguardando os 70% restantes (só espaços SPLIT)
+  CONFIRMED // totalmente pago
+  CANCELLED // cancelada (falta de pagamento ou pelo usuário/admin)
+}
+
+model Booking {
+  id        String        @id @default(cuid())
+  space     Space         @relation(fields: [spaceId], references: [id])
+  spaceId   String
+  date      DateTime // dia reservado
+  status    BookingStatus @default(AWAITING_DEPOSIT)
+
+  member   Member @relation(fields: [memberId], references: [id])
+  memberId String // nome/e-mail/telefone/CPF do associado vêm do Member — reserva exige login
+
+  shiftLabel String? // rótulo do turno escolhido, para espaços com shiftOptions (exibição)
+  startHour  Int? // hora de início do uso (0-23) — turno escolhido, ou horário livre (quadra)
+  hours      Int? // duração em horas — do turno, ou escolhida pelo usuário (espaços HOURLY)
+
+  totalCents   Int // snapshot do preço no momento da reserva
+  depositCents Int // SPLIT: 30% do total. FULL: igual a totalCents (pagamento único).
+  finalCents   Int // SPLIT: 70% do total. FULL: 0.
+
+  depositPaidAt        DateTime? // marcado manualmente pelo admin ao validar comprovante
+  finalDueDate          DateTime // data em que o saldo (SPLIT) ou o pagamento único (FULL) vence
+  finalPaidAt           DateTime? // marcado manualmente pelo admin ao validar comprovante
+  finalReminderSentAt   DateTime? // controla envio único do lembrete de pagamento
+
+  // TODO(integração Google Calendar): id do evento criado no calendário do espaço.
+  googleEventId String?
+
+  cancelledAt     DateTime?
+  cancelledReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([spaceId, date])
+  @@index([status])
+  @@index([memberId])
+}
+
+// Conta de associado — login exigido para reservar. Reservas são vinculadas aqui em vez de
+// guardar nome/e-mail/telefone/CPF soltos por reserva.
+model Member {
+  id   String @id @default(cuid())
+  name String
+
+  email        String  @unique
+  cpf          String? @unique // null até completar o cadastro (caso de quem entrou via Google)
+  phone        String? // idem — usado no lembrete de pagamento via WhatsApp
+  passwordHash String? // null se a conta só existe via Google
+  googleId     String? @unique // "sub" do token do Google, se logou por lá
+
+  bookings Booking[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
