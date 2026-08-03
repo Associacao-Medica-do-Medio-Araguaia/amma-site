@@ -50,4 +50,5 @@ dev.db
 # ferramentas de IA (config/sessão local, não faz parte do projeto)
 .claude/
 .agents/
+.windsurf/
 /skills-lock.json
