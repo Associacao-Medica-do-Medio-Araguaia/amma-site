@@ -108,6 +108,18 @@ model Booking {
   @@index([memberId])
 }
 
+// Conta de quem opera o painel /admin (confirma pagamentos, cancela reservas). Distinta de
+// Member: um admin não precisa ser associado nem fazer reservas.
+model Admin {
+  id           String @id @default(cuid())
+  name         String
+  email        String @unique
+  passwordHash String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 // Conta de associado — login exigido para reservar. Reservas são vinculadas aqui em vez de
 // guardar nome/e-mail/telefone/CPF soltos por reserva.
 model Member {
@@ -116,7 +128,7 @@ model Member {
 
   email        String  @unique
   cpf          String? @unique // null até completar o cadastro (caso de quem entrou via Google)
-  phone        String? // idem — usado no lembrete de pagamento via WhatsApp
+  phone        String? // idem — contato do associado (ex.: WhatsApp manual)
   passwordHash String? // null se a conta só existe via Google
   googleId     String? @unique // "sub" do token do Google, se logou por lá
 

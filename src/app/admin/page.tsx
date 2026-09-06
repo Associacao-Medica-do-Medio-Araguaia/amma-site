@@ -1,10 +1,11 @@
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { isAdminAuthenticated } from "@/lib/adminAuth";
+import { getCurrentAdmin } from "@/lib/adminAuth";
 import AdminBookingsTable, { AdminBookingRow } from "./AdminBookingsTable";
 
 export default async function AdminPage() {
-  if (!(await isAdminAuthenticated())) {
+  const admin = await getCurrentAdmin();
+  if (!admin) {
     redirect("/admin/login");
   }
 
@@ -34,7 +35,10 @@ export default async function AdminPage() {
   return (
     <div className="flex-1 mx-auto max-w-6xl px-6 py-12 w-full">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Reservas</h1>
+        <div>
+          <h1 className="text-2xl font-semibold">Reservas</h1>
+          <p className="text-sm text-muted-foreground">Olá, {admin.name}</p>
+        </div>
         <form action="/api/admin/logout" method="post">
           <button
             type="submit"
