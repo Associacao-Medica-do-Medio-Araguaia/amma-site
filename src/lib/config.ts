@@ -67,3 +67,11 @@ export const googleOAuth = {
 export const cron = {
   secret: process.env.CRON_SECRET ?? "troque-este-segredo",
 } as const;
+
+export const crmVerification = {
+  // Chave da API do consultacrm.com.br (tipo=CRM) — usada pra confirmar que quem se cadastra
+  // como associado é médico de verdade (CRM ativo). Sem isso configurado, o cadastro é aceito
+  // sem verificação automática (crmVerifiedAt fica null, pra conferência manual do admin).
+  apiKey: process.env.CONSULTACRM_API_KEY ?? "",
+  isConfigured: Boolean(process.env.CONSULTACRM_API_KEY),
+} as const;

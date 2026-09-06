@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { BRAZIL_UF_CODES } from "@/lib/crm";
 
 export default function AssociadoAuthForms({ googleEnabled }: { googleEnabled: boolean }) {
   const router = useRouter();
@@ -9,12 +10,13 @@ export default function AssociadoAuthForms({ googleEnabled }: { googleEnabled: b
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const [loginCpf, setLoginCpf] = useState("");
+  const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [cpf, setCpf] = useState("");
+  const [crm, setCrm] = useState("");
+  const [crmUf, setCrmUf] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
 
@@ -26,7 +28,7 @@ export default function AssociadoAuthForms({ googleEnabled }: { googleEnabled: b
       const res = await fetch("/api/associado/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cpf: loginCpf, password: loginPassword }),
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -47,7 +49,7 @@ export default function AssociadoAuthForms({ googleEnabled }: { googleEnabled: b
       const res = await fetch("/api/associado/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, cpf, phone, password }),
+        body: JSON.stringify({ name, email, crm, crmUf, phone, password }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -82,13 +84,12 @@ export default function AssociadoAuthForms({ googleEnabled }: { googleEnabled: b
       {tab === "login" ? (
         <form onSubmit={handleLogin} className="mt-4 flex flex-col gap-3 text-sm">
           <label className="flex flex-col gap-1">
-            CPF
+            E-mail
             <input
-              type="text"
+              type="email"
               required
-              placeholder="000.000.000-00"
-              value={loginCpf}
-              onChange={(e) => setLoginCpf(e.target.value)}
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
               className="rounded-md border border-border bg-surface px-3 py-2"
             />
           </label>
@@ -123,17 +124,37 @@ export default function AssociadoAuthForms({ googleEnabled }: { googleEnabled: b
               className="rounded-md border border-border bg-surface px-3 py-2"
             />
           </label>
-          <label className="flex flex-col gap-1">
-            CPF
-            <input
-              type="text"
-              required
-              placeholder="000.000.000-00"
-              value={cpf}
-              onChange={(e) => setCpf(e.target.value)}
-              className="rounded-md border border-border bg-surface px-3 py-2"
-            />
-          </label>
+          <div className="flex gap-3">
+            <label className="flex flex-1 flex-col gap-1">
+              CRM
+              <input
+                type="text"
+                required
+                placeholder="12345"
+                value={crm}
+                onChange={(e) => setCrm(e.target.value)}
+                className="rounded-md border border-border bg-surface px-3 py-2"
+              />
+            </label>
+            <label className="flex w-24 flex-col gap-1">
+              UF
+              <select
+                required
+                value={crmUf}
+                onChange={(e) => setCrmUf(e.target.value)}
+                className="rounded-md border border-border bg-surface px-3 py-2"
+              >
+                <option value="" disabled>
+                  --
+                </option>
+                {BRAZIL_UF_CODES.map((uf) => (
+                  <option key={uf} value={uf}>
+                    {uf}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
           <label className="flex flex-col gap-1">
             E-mail
             <input

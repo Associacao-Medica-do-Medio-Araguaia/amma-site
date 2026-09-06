@@ -6,11 +6,13 @@ import {
   MEMBER_SESSION_COOKIE,
   MEMBER_SESSION_COOKIE_OPTIONS,
 } from "@/lib/memberAuth";
+import { verifyCrm, BRAZIL_UF_CODES } from "@/lib/crm";
 
 interface RegisterBody {
   name: string;
   email: string;
-  cpf: string;
+  crm: string;
+  crmUf: string;
   phone: string;
   password: string;
 }
@@ -21,25 +23,45 @@ export async function POST(request: NextRequest) {
   if (
     !body.name?.trim() ||
     !body.email?.trim() ||
-    !body.cpf?.trim() ||
+    !body.crm?.trim() ||
+    !body.crmUf?.trim() ||
     !body.phone?.trim() ||
     !body.password ||
     body.password.length < 6
   ) {
     return NextResponse.json(
-      { error: "Preencha nome, e-mail, CPF, telefone e uma senha de pelo menos 6 caracteres." },
+      { error: "Preencha nome, e-mail, CRM, UF, telefone e uma senha de pelo menos 6 caracteres." },
       { status: 400 },
     );
   }
 
   const email = body.email.trim().toLowerCase();
-  const cpf = body.cpf.replace(/\D/g, "");
+  const crm = body.crm.replace(/\D/g, "");
+  const crmUf = body.crmUf.trim().toUpperCase();
 
-  const existing = await prisma.member.findFirst({ where: { OR: [{ email }, { cpf }] } });
+  if (!crm || !(BRAZIL_UF_CODES as readonly string[]).includes(crmUf)) {
+    return NextResponse.json({ error: "Informe um número de CRM e uma UF válidos." }, { status: 400 });
+  }
+
+  const existing = await prisma.member.findFirst({ where: { OR: [{ email }, { crm, crmUf }] } });
   if (existing) {
     return NextResponse.json(
-      { error: existing.email === email ? "Já existe uma conta com esse e-mail." : "Já existe uma conta com esse CPF." },
+      { error: existing.email === email ? "Já existe uma conta com esse e-mail." : "Já existe uma conta com esse CRM." },
       { status: 409 },
+    );
+  }
+
+  const verification = await verifyCrm(crm, crmUf);
+  if (verification.outcome === "not_found") {
+    return NextResponse.json(
+      { error: `CRM ${crm}/${crmUf} não encontrado. Confira o número e o estado.` },
+      { status: 422 },
+    );
+  }
+  if (verification.outcome === "inactive") {
+    return NextResponse.json(
+      { error: `Esse CRM consta como "${verification.situacao}" em ${crmUf}, não ativo — cadastro não permitido.` },
+      { status: 422 },
     );
   }
 
@@ -47,9 +69,13 @@ export async function POST(request: NextRequest) {
     data: {
       name: body.name.trim(),
       email,
-      cpf,
+      crm,
+      crmUf,
       phone: body.phone.trim(),
       passwordHash: hashPassword(body.password),
+      ...(verification.outcome === "verified"
+        ? { crmVerifiedName: verification.name, crmVerifiedAt: new Date() }
+        : {}),
     },
   });
 

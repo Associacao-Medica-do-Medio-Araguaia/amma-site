@@ -17,7 +17,7 @@ export default async function SpaceBookingPage({
   if (!space) notFound();
 
   const member = await getCurrentMember();
-  const canBook = Boolean(member?.cpf && member.phone);
+  const canBook = Boolean(member?.crm && member.phone);
 
   const shiftOptions = parseShiftOptions(space.shiftOptions);
   const isHourly = space.pricingUnit === "HOURLY";
@@ -90,7 +90,7 @@ export default async function SpaceBookingPage({
           <p className="font-medium">Você precisa estar logado para reservar.</p>
           <p className="mt-2 text-muted-foreground">
             {member
-              ? "Falta completar seu cadastro (CPF e telefone) para reservar."
+              ? "Falta completar seu cadastro (CRM e telefone) para reservar."
               : "Entre ou cadastre-se como associado para continuar."}
           </p>
           <Link

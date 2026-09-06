@@ -14,7 +14,9 @@ export interface AdminBookingRow {
   customerName: string;
   customerEmail: string;
   customerPhone: string;
-  customerCpf: string;
+  customerCrm: string;
+  customerCrmVerified: boolean;
+  customerCrmVerifiedName: string;
   shiftLabel: string | null;
   startHour: number | null;
   hours: number | null;
@@ -84,7 +86,20 @@ export default function AdminBookingsTable({ bookings }: { bookings: AdminBookin
                 <Field label="Espaço">{booking.spaceName}</Field>
                 <Field label="Cliente">
                   {booking.customerName}
-                  <div className="text-xs text-muted-foreground">CPF: {booking.customerCpf}</div>
+                  <div className="text-xs text-muted-foreground">
+                    CRM: {booking.customerCrm}
+                    {booking.customerCrm && !booking.customerCrmVerified && (
+                      <span className="ml-1 text-amber-600">(não verificado — conferir manualmente)</span>
+                    )}
+                  </div>
+                  {booking.customerCrmVerified && (
+                    <div className="text-xs text-muted-foreground">
+                      Consta como: {booking.customerCrmVerifiedName}
+                      {booking.customerCrmVerifiedName.toLowerCase() !== booking.customerName.toLowerCase() && (
+                        <span className="ml-1 text-amber-600">(nome diferente do cadastro — conferir)</span>
+                      )}
+                    </div>
+                  )}
                 </Field>
                 <Field label="Contato">
                   <div>{booking.customerEmail}</div>

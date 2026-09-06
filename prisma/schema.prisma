@@ -127,13 +127,24 @@ model Member {
   name String
 
   email        String  @unique
-  cpf          String? @unique // null até completar o cadastro (caso de quem entrou via Google)
+  cpf          String? @unique // DEPRECATED — substituído por crm/crmUf, mantido só até a migração de dados de produção ser concluída (ver prisma/migrations)
   phone        String? // idem — contato do associado (ex.: WhatsApp manual)
   passwordHash String? // null se a conta só existe via Google
   googleId     String? @unique // "sub" do token do Google, se logou por lá
+
+  // CRM é único só dentro do mesmo estado (UF) — dois médicos de estados diferentes podem ter o
+  // mesmo número. Verificado na hora do cadastro contra a API do consultacrm.com.br (ver
+  // src/lib/crm.ts); se a verificação falhar por erro da API (não por CRM inválido), o cadastro
+  // ainda é criado mas crmVerifiedAt fica null, para o admin conferir manualmente depois.
+  crm             String?
+  crmUf           String?
+  crmVerifiedName String? // nome retornado pela consulta, para o admin comparar com o nome informado
+  crmVerifiedAt   DateTime?
 
   bookings Booking[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([crm, crmUf])
 }
