@@ -52,3 +52,5 @@ dev.db
 .agents/
 .windsurf/
 /skills-lock.json
+.vercel
+.env*
