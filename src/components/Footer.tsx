@@ -11,9 +11,15 @@ export default function Footer() {
   return (
     <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground space-y-2">
       <p>AMMA {year}. Direitos reservados.</p>
-      <Link href={isAdminArea ? "/" : "/admin"} className="block hover:underline">
-        {isAdminArea ? "Voltar para a página principal" : "Área administrativa"}
-      </Link>
+      {isAdminArea ? (
+        <Link href="/" className="block hover:underline">
+          Voltar para a página principal
+        </Link>
+      ) : (
+        <Link href="/admin" className="block hover:underline">
+          Painel administrativo
+        </Link>
+      )}
     </footer>
   );
 }

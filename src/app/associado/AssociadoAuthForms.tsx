@@ -66,14 +66,14 @@ export default function AssociadoAuthForms({ googleEnabled }: { googleEnabled: b
         <button
           type="button"
           onClick={() => setTab("login")}
-          className={`pb-2 ${tab === "login" ? "text-primary border-b-2 border-primary" : "text-muted-foreground"}`}
+          className={`pb-2 select-none ${tab === "login" ? "text-primary border-b-2 border-primary" : "text-muted-foreground"}`}
         >
           Entrar
         </button>
         <button
           type="button"
           onClick={() => setTab("register")}
-          className={`pb-2 ${tab === "register" ? "text-primary border-b-2 border-primary" : "text-muted-foreground"}`}
+          className={`pb-2 select-none ${tab === "register" ? "text-primary border-b-2 border-primary" : "text-muted-foreground"}`}
         >
           Cadastrar
         </button>
