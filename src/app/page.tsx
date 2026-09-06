@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { whatsapp as whatsappConfig } from "@/lib/config";
@@ -5,8 +6,10 @@ import { location } from "@/lib/location";
 
 export const dynamic = "force-dynamic";
 
-// TODO(cliente): trocar o espaço em destaque se quiser outro além da Quadra de Areia.
-const FEATURED_SPACE_SLUG = "quadra-de-areia";
+// TODO(cliente): trocar o espaço em destaque se quiser outro além do Redário.
+// O Redário não é um espaço próprio — faz parte da Área Externa (ver prisma/seed.ts) — por
+// isso o texto abaixo é específico para ele, mas o link de reserva aponta para Área Externa.
+const FEATURED_SPACE_SLUG = "area-externa";
 
 export default async function HomePage() {
   const featuredSpace = await prisma.space.findUnique({ where: { slug: FEATURED_SPACE_SLUG } });
@@ -14,12 +17,16 @@ export default async function HomePage() {
 
   return (
     <div className="flex-1">
-      <header className="bg-foreground text-background">
-        <div className="mx-auto max-w-5xl px-6 py-20 text-center">
+      <header className="relative isolate overflow-hidden text-background">
+        {/* Fachada em tons de cinza + camada azul (multiply) por cima = efeito "silhueta". */}
+        <div className="absolute inset-0 -z-20 bg-[url('/fotos/fachada.jpg')] bg-cover bg-center grayscale contrast-125 brightness-[.55]" />
+        <div className="absolute inset-0 -z-10 bg-foreground/70 mix-blend-multiply" />
+        <div className="absolute inset-0 -z-10 bg-foreground/30" />
+        <div className="mx-auto max-w-5xl px-6 py-28 sm:py-36 text-center">
           <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight">
             Reserve nossos espaços
           </h1>
-          <p className="mt-4 text-base sm:text-lg opacity-80">
+          <p className="mt-4 text-base sm:text-lg opacity-90">
             Conheça nossos espaços e reserve para seus eventos e confraternizações.
           </p>
           <Link
@@ -33,18 +40,24 @@ export default async function HomePage() {
 
       {featuredSpace && (
         <section id="espacos" className="grid md:grid-cols-2 md:min-h-[620px]">
-          {/* TODO(cliente): substituir por foto real do espaço. */}
-          <div className="h-80 md:h-auto bg-surface-muted flex items-center justify-center text-muted-foreground text-sm">
-            Foto em breve
+          <div className="relative h-80 md:h-auto bg-surface-muted">
+            <Image src="/fotos/redario.jpg" alt="Redário sob as árvores" fill className="object-cover" />
           </div>
           <div className="flex flex-col justify-center px-8 py-16 md:px-20 md:py-14 text-center md:text-left">
-            <h2 className="text-3xl md:text-4xl font-semibold text-primary">{featuredSpace.name}</h2>
-            <p className="mt-4 text-lg text-muted-foreground">{featuredSpace.description}</p>
+            <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+              Dentro da Área Externa
+            </p>
+            <h2 className="mt-1 text-3xl md:text-4xl font-semibold text-primary">Redário</h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Balance na rede à sombra das árvores e desacelere no seu tempo — um cantinho de
+              descanso dentro da Área Externa, que também tem piscina, quadra de areia e
+              churrasqueira.
+            </p>
             <Link
               href={`/reservar/${featuredSpace.slug}`}
               className="mt-8 self-center md:self-start inline-block rounded-full border border-primary text-primary px-8 py-4 text-base font-medium hover:bg-primary hover:text-primary-foreground transition-colors"
             >
-              Faça uma reserva
+              Reserve a Área Externa
             </Link>
           </div>
         </section>
