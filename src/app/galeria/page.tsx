@@ -1,14 +1,12 @@
-// TODO(cliente): substituir os placeholders abaixo pelas fotos reais da associação.
-const GALLERY_PLACEHOLDERS = [
-  { id: 1, span: "row-span-2" },
-  { id: 2, span: "" },
-  { id: 3, span: "" },
-  { id: 4, span: "row-span-2" },
-  { id: 5, span: "" },
-  { id: 6, span: "" },
-  { id: 7, span: "" },
-  { id: 8, span: "row-span-2" },
-  { id: 9, span: "" },
+import GalleryGrid from "@/components/GalleryGrid";
+
+const GALLERY_PHOTOS = [
+  { id: 1, src: "/fotos/patio-piscina.jpg", alt: "Área de mesas à beira da piscina", span: "row-span-2" },
+  { id: 2, src: "/fotos/piscina.jpg", alt: "Piscina iluminada à noite", span: "" },
+  { id: 3, src: "/fotos/cozinha.jpg", alt: "Cozinha gourmet equipada", span: "" },
+  { id: 4, src: "/fotos/fachada.jpg", alt: "Fachada do salão de eventos à noite", span: "row-span-2" },
+  { id: 5, src: "/fotos/redario.jpg", alt: "Redário sob as árvores", span: "" },
+  { id: 6, src: "/fotos/salao-eventos.jpg", alt: "Salão de eventos decorado", span: "" },
 ];
 
 export default function GaleriaPage() {
@@ -16,19 +14,10 @@ export default function GaleriaPage() {
     <div className="flex-1 mx-auto max-w-5xl px-6 py-12 w-full">
       <h1 className="text-2xl font-semibold text-primary">Galeria de Fotos</h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        Conheça um pouco dos nossos espaços e eventos.
+        Conheça um pouco dos nossos espaços e eventos. Clique em uma foto para ver em tela cheia.
       </p>
 
-      <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4 auto-rows-[160px]">
-        {GALLERY_PLACEHOLDERS.map((photo) => (
-          <div
-            key={photo.id}
-            className={`${photo.span} rounded-xl bg-surface-muted border border-border flex items-center justify-center text-sm text-muted-foreground`}
-          >
-            Foto em breve
-          </div>
-        ))}
-      </div>
+      <GalleryGrid photos={GALLERY_PHOTOS} />
     </div>
   );
 }
