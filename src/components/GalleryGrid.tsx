@@ -38,14 +38,26 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
     return () => window.removeEventListener("keydown", handleKey);
   }, [openIndex, close, showPrev, showNext]);
 
-  // Trava o scroll da página atrás do lightbox — sem isso, no celular dá pra arrastar a página
-  // por baixo da foto em tela cheia, o que também atrapalha o toque nas setas.
+  // Trava o scroll da página atrás do lightbox. Só "overflow:hidden" no body não basta no
+  // celular (Safari/Chrome mobile continuam deixando "arrastar" por baixo e, pior, o conteúdo
+  // fixed pode ficar desalinhado da posição real de toque, fazendo os botões parecerem
+  // "deslocados" pra cima) — por isso fixamos o body na posição atual e restauramos o scroll ao
+  // fechar, técnica padrão pra isso.
   useEffect(() => {
     if (openIndex === null) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const previousPosition = body.style.position;
+    const previousTop = body.style.top;
+    const previousWidth = body.style.width;
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
     return () => {
-      document.body.style.overflow = previousOverflow;
+      body.style.position = previousPosition;
+      body.style.top = previousTop;
+      body.style.width = previousWidth;
+      window.scrollTo(0, scrollY);
     };
   }, [openIndex]);
 
@@ -104,7 +116,7 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
             type="button"
             onClick={close}
             aria-label="Fechar"
-            className="absolute top-2 right-2 flex h-12 w-12 items-center justify-center rounded-full bg-black/40 text-white text-3xl leading-none hover:bg-black/60 active:bg-black/70 select-none"
+            className="absolute top-2 right-2 p-2 text-white text-3xl leading-none hover:opacity-70 active:opacity-50 select-none"
           >
             ×
           </button>
@@ -116,7 +128,7 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
               showPrev();
             }}
             aria-label="Foto anterior"
-            className="absolute left-1 sm:left-6 flex h-14 w-14 items-center justify-center rounded-full bg-black/40 text-white text-4xl leading-none hover:bg-black/60 active:bg-black/70 select-none"
+            className="absolute left-1 sm:left-4 p-3 text-white text-4xl leading-none hover:opacity-70 active:opacity-50 select-none"
           >
             ‹
           </button>
@@ -139,7 +151,7 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
               showNext();
             }}
             aria-label="Próxima foto"
-            className="absolute right-1 sm:right-6 flex h-14 w-14 items-center justify-center rounded-full bg-black/40 text-white text-4xl leading-none hover:bg-black/60 active:bg-black/70 select-none"
+            className="absolute right-1 sm:right-4 p-3 text-white text-4xl leading-none hover:opacity-70 active:opacity-50 select-none"
           >
             ›
           </button>
