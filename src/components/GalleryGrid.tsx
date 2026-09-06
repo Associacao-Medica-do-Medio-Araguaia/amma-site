@@ -116,7 +116,7 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
             type="button"
             onClick={close}
             aria-label="Fechar"
-            className="absolute top-2 right-2 p-2 text-white text-3xl leading-none hover:opacity-70 active:opacity-50 select-none"
+            className="absolute top-2 right-2 z-10 p-2 text-white text-3xl leading-none hover:opacity-70 active:opacity-50 select-none"
           >
             ×
           </button>
@@ -128,7 +128,7 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
               showPrev();
             }}
             aria-label="Foto anterior"
-            className="absolute left-1 sm:left-4 p-3 text-white text-4xl leading-none hover:opacity-70 active:opacity-50 select-none"
+            className="absolute left-1 sm:left-4 z-10 p-3 text-white text-4xl leading-none hover:opacity-70 active:opacity-50 select-none"
           >
             ‹
           </button>
@@ -151,7 +151,7 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
               showNext();
             }}
             aria-label="Próxima foto"
-            className="absolute right-1 sm:right-4 p-3 text-white text-4xl leading-none hover:opacity-70 active:opacity-50 select-none"
+            className="absolute right-1 sm:right-4 z-10 p-3 text-white text-4xl leading-none hover:opacity-70 active:opacity-50 select-none"
           >
             ›
           </button>
