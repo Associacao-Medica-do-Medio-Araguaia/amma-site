@@ -18,9 +18,9 @@ interface CreateBookingBody {
 
 export async function POST(request: NextRequest) {
   const member = await getCurrentMember();
-  if (!member || !member.cpf || !member.phone) {
+  if (!member || !member.crm || !member.phone) {
     return NextResponse.json(
-      { error: "Você precisa estar logado, com CPF e telefone cadastrados, para reservar." },
+      { error: "Você precisa estar logado, com CRM e telefone cadastrados, para reservar." },
       { status: 401 },
     );
   }

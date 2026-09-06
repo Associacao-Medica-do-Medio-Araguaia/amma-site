@@ -1,7 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
+
+// Distância mínima (px) de arraste horizontal pra contar como swipe e não como um toque/scroll
+// vertical acidental.
+const SWIPE_THRESHOLD_PX = 50;
 
 interface Photo {
   id: number;
@@ -34,6 +38,37 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
     return () => window.removeEventListener("keydown", handleKey);
   }, [openIndex, close, showPrev, showNext]);
 
+  // Trava o scroll da página atrás do lightbox — sem isso, no celular dá pra arrastar a página
+  // por baixo da foto em tela cheia, o que também atrapalha o toque nas setas.
+  useEffect(() => {
+    if (openIndex === null) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [openIndex]);
+
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  function handleTouchStart(e: React.TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  }
+
+  function handleTouchEnd(e: React.TouchEvent) {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+    touchStartX.current = null;
+    touchStartY.current = null;
+    // Ignora arrastes mais verticais que horizontais (provável scroll, não swipe de foto).
+    if (Math.abs(deltaX) < SWIPE_THRESHOLD_PX || Math.abs(deltaX) < Math.abs(deltaY)) return;
+    if (deltaX < 0) showNext();
+    else showPrev();
+  }
+
   return (
     <>
       <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4 auto-rows-[160px]">
@@ -57,8 +92,10 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
 
       {openIndex !== null && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 sm:p-10"
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 sm:p-10 touch-none"
           onClick={close}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
           role="dialog"
           aria-modal="true"
           aria-label={photos[openIndex].alt}
@@ -67,7 +104,7 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
             type="button"
             onClick={close}
             aria-label="Fechar"
-            className="absolute top-4 right-4 text-white text-3xl leading-none hover:opacity-70 select-none"
+            className="absolute top-2 right-2 flex h-12 w-12 items-center justify-center rounded-full bg-black/40 text-white text-3xl leading-none hover:bg-black/60 active:bg-black/70 select-none"
           >
             ×
           </button>
@@ -79,7 +116,7 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
               showPrev();
             }}
             aria-label="Foto anterior"
-            className="absolute left-2 sm:left-6 text-white text-4xl leading-none hover:opacity-70 select-none"
+            className="absolute left-1 sm:left-6 flex h-14 w-14 items-center justify-center rounded-full bg-black/40 text-white text-4xl leading-none hover:bg-black/60 active:bg-black/70 select-none"
           >
             ‹
           </button>
@@ -102,7 +139,7 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
               showNext();
             }}
             aria-label="Próxima foto"
-            className="absolute right-2 sm:right-6 text-white text-4xl leading-none hover:opacity-70 select-none"
+            className="absolute right-1 sm:right-6 flex h-14 w-14 items-center justify-center rounded-full bg-black/40 text-white text-4xl leading-none hover:bg-black/60 active:bg-black/70 select-none"
           >
             ›
           </button>

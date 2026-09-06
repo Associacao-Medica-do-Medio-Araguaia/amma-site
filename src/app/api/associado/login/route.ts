@@ -8,18 +8,18 @@ import {
 } from "@/lib/memberAuth";
 
 export async function POST(request: NextRequest) {
-  const { cpf, password } = (await request.json().catch(() => ({}))) as {
-    cpf?: string;
+  const { email, password } = (await request.json().catch(() => ({}))) as {
+    email?: string;
     password?: string;
   };
 
-  if (!cpf?.trim() || !password) {
-    return NextResponse.json({ error: "Informe CPF e senha." }, { status: 400 });
+  if (!email?.trim() || !password) {
+    return NextResponse.json({ error: "Informe e-mail e senha." }, { status: 400 });
   }
 
-  const member = await prisma.member.findUnique({ where: { cpf: cpf.replace(/\D/g, "") } });
+  const member = await prisma.member.findUnique({ where: { email: email.trim().toLowerCase() } });
   if (!member) {
-    return NextResponse.json({ error: "CPF ou senha incorretos." }, { status: 401 });
+    return NextResponse.json({ error: "E-mail ou senha incorretos." }, { status: 401 });
   }
   if (!member.passwordHash) {
     return NextResponse.json(
@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     );
   }
   if (!verifyPassword(password, member.passwordHash)) {
-    return NextResponse.json({ error: "CPF ou senha incorretos." }, { status: 401 });
+    return NextResponse.json({ error: "E-mail ou senha incorretos." }, { status: 401 });
   }
 
   const response = NextResponse.json({ member: { id: member.id, name: member.name } });

@@ -4,6 +4,7 @@ import { googleOAuth } from "@/lib/config";
 import { formatCentsToBRL } from "@/lib/money";
 import { formatDatePtBR } from "@/lib/dates";
 import { BOOKING_STATUS_LABEL } from "@/lib/bookingStatus";
+import type { MemberModel as Member } from "@/generated/prisma/models";
 import AssociadoAuthForms from "./AssociadoAuthForms";
 import CompleteProfileForm from "./CompleteProfileForm";
 
@@ -16,12 +17,12 @@ export default async function AssociadoPage({
   const member = await getCurrentMember();
 
   return (
-    <div className="flex-1 mx-auto max-w-3xl px-6 py-12 w-full">
+    <div className="flex-1 mx-auto max-w-4xl px-6 py-12 w-full">
       <h1 className="text-2xl font-semibold text-primary">Espaço do Associado</h1>
 
       {erro === "google" && (
         <p className="mt-4 text-sm text-red-600">
-          Não foi possível entrar com o Google. Tente novamente ou use CPF e senha.
+          Não foi possível entrar com o Google. Tente novamente ou use e-mail e senha.
         </p>
       )}
 
@@ -32,18 +33,22 @@ export default async function AssociadoPage({
         </section>
       )}
 
-      {member && (!member.cpf || !member.phone) && (
-        <section className="mt-10">
-          <h2 className="text-xl font-semibold">Complete seu cadastro</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Falta seu CPF e telefone para liberar as reservas.
-          </p>
-          <CompleteProfileForm initialCpf={member.cpf} initialPhone={member.phone} />
-        </section>
-      )}
+      {member && (
+        <div className="mt-10 grid gap-8 md:grid-cols-[260px_1fr] md:items-start">
+          <MemberProfileCard member={member} />
 
-      {member && member.cpf && member.phone && (
-        <MemberBookings memberId={member.id} name={member.name} />
+          {!member.crm || !member.phone ? (
+            <section>
+              <h2 className="text-xl font-semibold">Complete seu cadastro</h2>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Falta seu CRM e telefone para liberar as reservas.
+              </p>
+              <CompleteProfileForm initialCrm={member.crm} initialCrmUf={member.crmUf} initialPhone={member.phone} />
+            </section>
+          ) : (
+            <MemberBookings memberId={member.id} />
+          )}
+        </div>
       )}
 
       <section className="mt-10">
@@ -62,7 +67,48 @@ export default async function AssociadoPage({
   );
 }
 
-async function MemberBookings({ memberId, name }: { memberId: string; name: string }) {
+function MemberProfileCard({ member }: { member: Member }) {
+  return (
+    <aside className="rounded-lg border border-border bg-surface p-4 text-sm md:sticky md:top-4">
+      <div className="flex items-center gap-3">
+        <span
+          aria-hidden="true"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-lg font-semibold"
+        >
+          {member.name.charAt(0).toUpperCase()}
+        </span>
+        <div className="min-w-0">
+          <p className="font-medium truncate">{member.name}</p>
+          {member.crm && (
+            <p className="text-xs text-muted-foreground">
+              CRM {member.crm}/{member.crmUf}
+              {!member.crmVerifiedAt && <span className="text-amber-600"> · pendente</span>}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <dl className="mt-4 flex flex-col gap-3">
+        <div>
+          <dt className="text-xs text-muted-foreground">E-mail</dt>
+          <dd className="break-words">{member.email}</dd>
+        </div>
+        <div>
+          <dt className="text-xs text-muted-foreground">Celular</dt>
+          <dd>{member.phone ?? "—"}</dd>
+        </div>
+      </dl>
+
+      <form action="/api/associado/logout" method="post" className="mt-4">
+        <button type="submit" className="text-sm text-muted-foreground hover:underline">
+          Sair
+        </button>
+      </form>
+    </aside>
+  );
+}
+
+async function MemberBookings({ memberId }: { memberId: string }) {
   const bookings = await prisma.booking.findMany({
     where: { memberId },
     include: { space: true },
@@ -70,15 +116,8 @@ async function MemberBookings({ memberId, name }: { memberId: string; name: stri
   });
 
   return (
-    <section className="mt-10">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Bem-vindo, {name}</h2>
-        <form action="/api/associado/logout" method="post">
-          <button type="submit" className="text-sm text-muted-foreground hover:underline">
-            Sair
-          </button>
-        </form>
-      </div>
+    <section>
+      <h2 className="text-xl font-semibold">Minhas reservas</h2>
 
       {bookings.length === 0 ? (
         <p className="mt-4 text-sm text-muted-foreground">Você ainda não fez nenhuma reserva.</p>
