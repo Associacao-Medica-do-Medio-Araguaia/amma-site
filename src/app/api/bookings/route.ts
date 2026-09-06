@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { business } from "@/lib/config";
-import { earliestBookableDate, finalPaymentDueDate, parseDateOnly } from "@/lib/dates";
+import { earliestBookableDate, finalPaymentDueDate, formatDatePtBR, parseDateOnly } from "@/lib/dates";
 import { parseShiftOptions, EXCLUSIVE_VENUE_BUFFER_HOURS } from "@/lib/spaceRules";
 import { getCurrentMember } from "@/lib/memberAuth";
+import { sendEmail, bookingReceivedEmailHtml } from "@/lib/email";
+import { buildStaticPixPayload, buildPixCopyPageUrl, buildPixQrCodeImageUrl } from "@/lib/pix";
+import { formatCentsToBRL } from "@/lib/money";
 
 interface CreateBookingBody {
   spaceSlug: string;
@@ -214,6 +217,27 @@ export async function POST(request: NextRequest) {
       finalDueDate: finalPaymentDueDate(date, space.finalDueDays),
     },
   });
+
+  try {
+    const pixCopyPaste = buildStaticPixPayload();
+    const amountDueFormatted = formatCentsToBRL(depositCents);
+    await sendEmail({
+      to: member.email,
+      subject: "✅ Recebemos sua reserva",
+      html: bookingReceivedEmailHtml({
+        customerName: member.name,
+        spaceName: space.name,
+        date: formatDatePtBR(booking.date),
+        amountDueFormatted,
+        pixCopyPaste,
+        qrCodeImageUrl: buildPixQrCodeImageUrl(request.nextUrl.origin),
+        copyUrl: buildPixCopyPageUrl(request.nextUrl.origin, pixCopyPaste, amountDueFormatted),
+        bookingId: booking.id,
+      }),
+    });
+  } catch (error) {
+    console.error("[bookings] falha ao enviar e-mail de reserva recebida:", error);
+  }
 
   return NextResponse.json({ bookingId: booking.id }, { status: 201 });
 }

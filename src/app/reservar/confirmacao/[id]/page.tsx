@@ -66,7 +66,7 @@ export default async function BookingConfirmationPage({
         {booking.status === "AWAITING_DEPOSIT" && booking.finalCents > 0 && (
           <p className="text-muted-foreground">
             Faltando {booking.space.finalDueDays} dias para a data reservada, enviaremos um
-            lembrete por e-mail e WhatsApp para o pagamento dos{" "}
+            lembrete por e-mail para o pagamento dos{" "}
             {formatCentsToBRL(booking.finalCents)} restantes. Se o pagamento não for
             identificado até o prazo, a reserva será cancelada automaticamente.
           </p>

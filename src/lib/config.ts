@@ -18,6 +18,14 @@ export const pix = {
     "00020126360014br.gov.bcb.pix0114150513860001385204000053039865802BR5904AMMA6015Barra Do Garcas62160512naoinformado6304B4C8",
 } as const;
 
+export const site = {
+  // TODO(você): preencha com o domínio público em produção (ex. "https://amma.med.br"). Sem
+  // isso, as imagens (QR Code do Pix) embutidas nos e-mails apontam para o endereço da própria
+  // requisição (localhost/IP da rede local em dev) — e como não são acessíveis pela internet,
+  // o Gmail/Outlook não conseguem carregá-las e o e-mail chega sem a imagem.
+  url: (process.env.SITE_URL ?? "").replace(/\/$/, ""),
+} as const;
+
 export const email = {
   resendApiKey: process.env.RESEND_API_KEY ?? "",
   from: process.env.EMAIL_FROM ?? "associacaomedicadomedioaraguaia@gmail.com",
@@ -26,15 +34,10 @@ export const email = {
   isConfigured: Boolean(process.env.RESEND_API_KEY),
 } as const;
 
+// Número exibido nos links "Fale conosco pelo WhatsApp" do site (contato manual — não há
+// envio automático de mensagens).
 export const whatsapp = {
   displayNumber: process.env.WHATSAPP_DISPLAY_NUMBER ?? "+55 66 99664-0443",
-  // Credenciais da Meta Cloud API para envio automático do lembrete — número "verificado" no
-  // WhatsApp comum não é o mesmo que ter a integração da Business Platform configurada.
-  phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID ?? "",
-  accessToken: process.env.WHATSAPP_ACCESS_TOKEN ?? "",
-  reminderTemplateName:
-    process.env.WHATSAPP_REMINDER_TEMPLATE_NAME ?? "lembrete_pagamento_reserva",
-  isConfigured: Boolean(process.env.WHATSAPP_PHONE_NUMBER_ID && process.env.WHATSAPP_ACCESS_TOKEN),
 } as const;
 
 export const googleCalendar = {
@@ -44,10 +47,6 @@ export const googleCalendar = {
   isConfigured: Boolean(
     process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY,
   ),
-} as const;
-
-export const admin = {
-  password: process.env.ADMIN_PASSWORD ?? "troque-esta-senha",
 } as const;
 
 export const session = {

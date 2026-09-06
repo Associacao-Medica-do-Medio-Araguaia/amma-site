@@ -1,4 +1,4 @@
-import { pix as pixConfig } from "@/lib/config";
+import { pix as pixConfig, site as siteConfig } from "@/lib/config";
 
 // O "copia e cola" oficial (com CRC conferido) vem de PIX_STATIC_PAYLOAD — ver src/lib/config.ts.
 // O gerador abaixo só entra como reserva, caso esse valor não esteja configurado.
@@ -57,4 +57,22 @@ function buildPixPayloadFromParts(): string {
 
 export function buildStaticPixPayload(): string {
   return pixConfig.staticPayload || buildPixPayloadFromParts();
+}
+
+/**
+ * URL pública do PNG do QR Code do Pix estático — usada no e-mail de lembrete (exige URL, não
+ * data URI). Prioriza SITE_URL (config), já que o e-mail é aberto em outra rede/dispositivo:
+ * usar o origin da requisição (localhost/IP da rede local em dev) resultaria numa imagem que o
+ * Gmail/Outlook não conseguem carregar.
+ */
+export function buildPixQrCodeImageUrl(requestOrigin: string): string {
+  return new URL("/api/pix-qrcode.png", siteConfig.url || requestOrigin).toString();
+}
+
+/** Página que copia o código Pix para a área de transferência com um clique — usada como botão nos e-mails. */
+export function buildPixCopyPageUrl(requestOrigin: string, pixCopyPaste: string, amountFormatted?: string): string {
+  const url = new URL("/pix/copiar", siteConfig.url || requestOrigin);
+  url.searchParams.set("codigo", pixCopyPaste);
+  if (amountFormatted) url.searchParams.set("valor", amountFormatted);
+  return url.toString();
 }

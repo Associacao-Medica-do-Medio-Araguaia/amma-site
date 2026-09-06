@@ -73,9 +73,23 @@ export default function BookingForm({
   const closeHour = Math.min(operatingEndHour ?? 24, dayInfo?.latestEndHour ?? 24);
   const hourOptions = useMemo(() => {
     const options: number[] = [];
-    for (let h = openHour; h + hours <= closeHour; h++) options.push(h);
+    for (let h = openHour; h + hours <= closeHour; h++) {
+      const overlapsBooked = dayInfo?.bookedRanges.some(([s, e]) => h < e && h + hours > s) ?? false;
+      if (!overlapsBooked) options.push(h);
+    }
     return options;
-  }, [openHour, closeHour, hours]);
+  }, [openHour, closeHour, hours, dayInfo]);
+
+  useEffect(() => {
+    // Se o horário selecionado deixou de ser válido (ex. horário ocupado só é conhecido depois
+    // de carregar o dia), o <select> muda o que é exibido na tela sem disparar onChange — o
+    // navegador escolhe visualmente a primeira opção da lista, mas o estado React (o que de
+    // fato é enviado no submit) fica parado no valor antigo. Sincroniza aqui para o valor
+    // exibido ser sempre o valor enviado.
+    if (isHourly && hourOptions.length > 0 && !hourOptions.includes(startHour)) {
+      setStartHour(hourOptions[0]);
+    }
+  }, [isHourly, hourOptions, startHour]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -123,7 +137,10 @@ export default function BookingForm({
           minDate={minDate}
           busyDates={busyDates}
           selectedDate={date}
-          onSelect={setDate}
+          onSelect={(d) => {
+            setError(null);
+            setDate(d);
+          }}
         />
       </div>
 
@@ -137,7 +154,10 @@ export default function BookingForm({
                 name="shift"
                 value={option.label}
                 checked={shiftLabel === option.label}
-                onChange={() => setShiftLabel(option.label)}
+                onChange={() => {
+                  setError(null);
+                  setShiftLabel(option.label);
+                }}
               />
               {option.label}
             </label>
@@ -163,7 +183,10 @@ export default function BookingForm({
             Duração
             <select
               value={hours}
-              onChange={(e) => setHours(Number(e.target.value))}
+              onChange={(e) => {
+                setError(null);
+                setHours(Number(e.target.value));
+              }}
               className="rounded-md border border-border bg-surface px-3 py-2"
             >
               {Array.from({ length: maxHoursPerBooking ?? 1 }, (_, i) => i + 1).map((h) => (
@@ -177,7 +200,10 @@ export default function BookingForm({
             Horário de início
             <select
               value={startHour}
-              onChange={(e) => setStartHour(Number(e.target.value))}
+              onChange={(e) => {
+                setError(null);
+                setStartHour(Number(e.target.value));
+              }}
               className="rounded-md border border-border bg-surface px-3 py-2"
             >
               {hourOptions.length === 0 && <option value={startHour}>Sem horário disponível</option>}

@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAuthorizedCronRequest } from "@/lib/cronAuth";
-import { buildStaticPixPayload } from "@/lib/pix";
+import { buildStaticPixPayload, buildPixCopyPageUrl, buildPixQrCodeImageUrl } from "@/lib/pix";
 import { formatCentsToBRL } from "@/lib/money";
 import { formatDatePtBR, startOfDayUTC } from "@/lib/dates";
 import { sendEmail, paymentReminderEmailHtml } from "@/lib/email";
-import { sendPaymentReminderWhatsapp } from "@/lib/whatsapp";
-import { toWhatsappE164 } from "@/lib/phone";
 
 // Deve ser chamada uma vez por dia por um agendador externo (ver src/lib/cronAuth.ts).
 // Envia o lembrete de pagamento para reservas cujo vencimento já chegou e ainda não receberam
@@ -34,33 +32,27 @@ export async function GET(request: NextRequest) {
   });
 
   const pixCopyPaste = buildStaticPixPayload();
-  const qrCodeImageUrl = new URL("/api/pix-qrcode.png", request.nextUrl.origin).toString();
+  const qrCodeImageUrl = buildPixQrCodeImageUrl(request.nextUrl.origin);
 
   const results: { bookingId: string; ok: boolean; error?: string }[] = [];
 
   for (const booking of bookings) {
     const amountDueCents = booking.status === "AWAITING_DEPOSIT" ? booking.depositCents : booking.finalCents;
+    const amountDueFormatted = formatCentsToBRL(amountDueCents);
     try {
       await sendEmail({
         to: booking.member.email,
-        subject: "Falta pagar sua reserva",
+        subject: "⚠️ Pagamento pendente da sua reserva — prazo hoje",
         html: paymentReminderEmailHtml({
           customerName: booking.member.name,
           spaceName: booking.space.name,
           date: formatDatePtBR(booking.date),
-          remainingAmountFormatted: formatCentsToBRL(amountDueCents),
+          dueDateFormatted: formatDatePtBR(booking.finalDueDate),
+          remainingAmountFormatted: amountDueFormatted,
           pixCopyPaste,
+          qrCodeImageUrl,
+          copyUrl: buildPixCopyPageUrl(request.nextUrl.origin, pixCopyPaste, amountDueFormatted),
         }),
-      });
-
-      await sendPaymentReminderWhatsapp({
-        toPhoneE164: toWhatsappE164(booking.member.phone ?? ""),
-        customerName: booking.member.name,
-        spaceName: booking.space.name,
-        dateFormatted: formatDatePtBR(booking.date),
-        remainingAmountFormatted: formatCentsToBRL(amountDueCents),
-        pixCopyPaste,
-        qrCodeImageUrl,
       });
 
       await prisma.booking.update({
