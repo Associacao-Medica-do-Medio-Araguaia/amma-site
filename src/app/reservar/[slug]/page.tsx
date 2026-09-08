@@ -28,6 +28,9 @@ export default async function SpaceBookingPage({
         ← Escolher outro espaço
       </Link>
       <h1 className="mt-4 text-2xl font-semibold">{space.name}</h1>
+      <p className="mt-2 rounded-lg bg-amber-100 text-amber-900 text-sm px-4 py-2 inline-block">
+        Reserva exclusiva para médicos associados à AMMA.
+      </p>
       <p className="mt-2 text-sm text-muted-foreground">{space.description}</p>
 
       <div className="mt-6 rounded-lg border border-border bg-surface p-4 text-sm space-y-1">
