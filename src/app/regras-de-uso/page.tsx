@@ -10,6 +10,9 @@ export default async function RegrasDeUsoPage() {
   return (
     <div className="flex-1 mx-auto max-w-3xl px-6 py-12 w-full">
       <h1 className="text-2xl font-semibold text-primary">Regras de Uso</h1>
+      <p className="mt-2 rounded-lg bg-amber-100 text-amber-900 text-sm px-4 py-2 inline-block">
+        Reservas exclusivas para médicos associados à AMMA.
+      </p>
       <p className="mt-2 text-sm text-muted-foreground">
         Horários, capacidade e condições de reserva de cada espaço.
       </p>

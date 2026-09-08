@@ -13,6 +13,9 @@ export default async function ReservarPage() {
         ← Voltar
       </Link>
       <h1 className="mt-4 text-2xl font-semibold">Escolha o espaço</h1>
+      <p className="mt-2 rounded-lg bg-amber-100 text-amber-900 text-sm px-4 py-2 inline-block">
+        Reservas exclusivas para médicos associados à AMMA.
+      </p>
       <p className="mt-2 text-sm text-muted-foreground">
         Cada espaço tem sua própria antecedência mínima de reserva.
       </p>

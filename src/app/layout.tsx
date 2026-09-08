@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AMMA — Reserva de Espaços",
+  title: "AMMA - Associação Médica do Médio Araguaia",
   description:
-    "Reserve os espaços da Associação Médica do Médio Araguaia: Salão de Festa, Área Externa, Cozinha Gourmet e Quadra de Areia.",
+    "Site oficial da Associação Médica do Médio Araguaia, com informações sobre os espaços disponíveis: Salão de Festa, Área Externa, Cozinha Gourmet e Quadra de Areia.",
 };
 
 export default function RootLayout({
