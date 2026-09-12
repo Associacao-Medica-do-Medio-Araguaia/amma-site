@@ -1,6 +1,6 @@
 const embedId = process.env.GOOGLE_CALENDAR_EMBED_ID ?? "associacaomedicadomedioaraguai@gmail.com";
 
-const embedParams = new URLSearchParams({
+const baseEmbedParams = {
   src: embedId,
   ctz: "America/Sao_Paulo",
   wkst: "1", // semana começa na segunda-feira
@@ -14,10 +14,21 @@ const embedParams = new URLSearchParams({
   // limitação do próprio widget do Google, não do código daqui — as cores por espaço só
   // aparecem corretamente ao abrir o Google Agenda de verdade (calendar.google.com), como já
   // validado via API.
-});
+};
+
+function buildEmbedUrl(mode?: "AGENDA") {
+  const params = new URLSearchParams(baseEmbedParams);
+  if (mode) params.set("mode", mode);
+  return `https://calendar.google.com/calendar/embed?${params.toString()}`;
+}
 
 export const calendar = {
   embedId,
-  embedUrl: `https://calendar.google.com/calendar/embed?${embedParams.toString()}`,
+  // Visão de mês (grade): funciona bem em telas largas.
+  embedUrl: buildEmbedUrl(),
+  // Visão de agenda (lista): no widget do Google, a grade mensal fica estreita
+  // demais no celular e os eventos aparecem só como "Ocupado" sem título. A
+  // lista mostra o título mesmo em telas pequenas, então é usada no mobile.
+  embedUrlMobile: buildEmbedUrl("AGENDA"),
   isConfigured: Boolean(embedId),
 } as const;

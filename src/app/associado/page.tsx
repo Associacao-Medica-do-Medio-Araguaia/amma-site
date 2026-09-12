@@ -100,7 +100,7 @@ function MemberProfileCard({ member }: { member: Member }) {
       </dl>
 
       <form action="/api/associado/logout" method="post" className="mt-4">
-        <button type="submit" className="text-sm text-muted-foreground hover:underline">
+        <button type="submit" className="text-sm text-muted-foreground hover:cursor-pointer hover:underline">
           Sair
         </button>
       </form>

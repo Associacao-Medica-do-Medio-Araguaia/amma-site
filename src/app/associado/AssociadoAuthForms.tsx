@@ -1,13 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Script from "next/script";
 import { BRAZIL_UF_CODES } from "@/lib/crm";
 
+interface GoogleCredentialResponse {
+  credential: string;
+}
+
 declare global {
   interface Window {
-    handleGoogleCredentialResponse?: (response: { credential: string }) => void;
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: {
+            client_id: string;
+            callback: (response: GoogleCredentialResponse) => void;
+          }) => void;
+          renderButton: (
+            parent: HTMLElement,
+            options: { type: string; shape: string; theme: string; text: string; size: string },
+          ) => void;
+        };
+      };
+    };
   }
 }
 
@@ -17,26 +34,38 @@ export default function AssociadoAuthForms({ googleClientId }: { googleClientId?
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [googleError, setGoogleError] = useState<string | null>(null);
+  const googleButtonRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!googleClientId) return;
-    window.handleGoogleCredentialResponse = async (response) => {
-      setGoogleError(null);
-      const res = await fetch("/api/auth/google", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ credential: response.credential }),
-      });
-      if (!res.ok) {
-        setGoogleError("Não foi possível entrar com o Google.");
-        return;
-      }
-      router.refresh();
-    };
-    return () => {
-      delete window.handleGoogleCredentialResponse;
-    };
-  }, [googleClientId, router]);
+  async function handleGoogleCredential(response: GoogleCredentialResponse) {
+    setGoogleError(null);
+    const res = await fetch("/api/auth/google", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential: response.credential }),
+    });
+    if (!res.ok) {
+      setGoogleError("Não foi possível entrar com o Google.");
+      return;
+    }
+    router.refresh();
+  }
+
+  // O GSI só escaneia o HTML em busca de botões uma vez, quando o script termina de carregar.
+  // Navegar entre páginas do site (client-side) desmonta e remonta essa div, então precisamos
+  // renderizar o botão manualmente a cada montagem — por isso usamos o onReady do next/script
+  // como único gatilho: ele roda toda vez que o componente monta (script já carregado ou não),
+  // diferente do onLoad, que dispara uma única vez para o script inteiro.
+  function renderGoogleButton() {
+    if (!googleClientId || !googleButtonRef.current || !window.google) return;
+    window.google.accounts.id.initialize({ client_id: googleClientId, callback: handleGoogleCredential });
+    window.google.accounts.id.renderButton(googleButtonRef.current, {
+      type: "standard",
+      shape: "pill",
+      theme: "outline",
+      text: "signin_with",
+      size: "large",
+    });
+  }
 
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -229,21 +258,12 @@ export default function AssociadoAuthForms({ googleClientId }: { googleClientId?
       {googleClientId && (
         <div className="mt-4 flex flex-col items-center gap-2">
           <p className="text-xs text-muted-foreground">ou</p>
-          <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
-          <div
-            id="g_id_onload"
-            data-client_id={googleClientId}
-            data-callback="handleGoogleCredentialResponse"
-            data-auto_prompt="false"
+          <Script
+            src="https://accounts.google.com/gsi/client"
+            strategy="afterInteractive"
+            onReady={renderGoogleButton}
           />
-          <div
-            className="g_id_signin"
-            data-type="standard"
-            data-shape="pill"
-            data-theme="outline"
-            data-text="signin_with"
-            data-size="large"
-          />
+          <div ref={googleButtonRef} />
           {googleError && <p className="text-red-600 text-xs">{googleError}</p>}
         </div>
       )}
