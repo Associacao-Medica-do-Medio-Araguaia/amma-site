@@ -1,34 +1,50 @@
-import { randomBytes } from "node:crypto";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import { OAuth2Client } from "google-auth-library";
+import { prisma } from "@/lib/prisma";
 import { googleOAuth } from "@/lib/config";
+import { memberSessionCookieValue, MEMBER_SESSION_COOKIE, MEMBER_SESSION_COOKIE_OPTIONS } from "@/lib/memberAuth";
 
-const OAUTH_STATE_COOKIE = "google_oauth_state";
+const client = new OAuth2Client(googleOAuth.clientId);
 
-// Início do login com Google: redireciona pro consent screen. Ver o callback em
-// src/app/api/auth/google/callback/route.ts.
-export async function GET() {
+// Recebe o ID token entregue pelo botão padrão do Google (Google Identity Services) e
+// verifica a assinatura junto ao Google antes de confiar no conteúdo — diferente de uma
+// troca de código servidor-a-servidor, esse token vem do navegador do usuário.
+export async function POST(request: NextRequest) {
   if (!googleOAuth.isConfigured) {
     return NextResponse.json({ error: "Login com Google não está configurado." }, { status: 404 });
   }
 
-  const state = randomBytes(16).toString("hex");
+  const { credential } = (await request.json().catch(() => ({}))) as { credential?: string };
+  if (!credential) {
+    return NextResponse.json({ error: "Credencial ausente." }, { status: 400 });
+  }
 
-  const params = new URLSearchParams({
-    client_id: googleOAuth.clientId,
-    redirect_uri: googleOAuth.redirectUri,
-    response_type: "code",
-    scope: "openid email profile",
-    state,
-    prompt: "select_account",
-  });
+  let payload;
+  try {
+    const ticket = await client.verifyIdToken({ idToken: credential, audience: googleOAuth.clientId });
+    payload = ticket.getPayload();
+  } catch {
+    return NextResponse.json({ error: "Credencial inválida." }, { status: 401 });
+  }
 
-  const response = NextResponse.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
-  response.cookies.set(OAUTH_STATE_COOKIE, state, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: 60 * 10,
-  });
+  if (!payload?.email || !payload.email_verified) {
+    return NextResponse.json({ error: "E-mail do Google não verificado." }, { status: 401 });
+  }
+
+  const email = payload.email.toLowerCase();
+  let member = await prisma.member.findUnique({ where: { googleId: payload.sub } });
+  if (!member) {
+    member = await prisma.member.findUnique({ where: { email } });
+    if (member) {
+      member = await prisma.member.update({ where: { id: member.id }, data: { googleId: payload.sub } });
+    } else {
+      member = await prisma.member.create({
+        data: { name: payload.name ?? email, email, googleId: payload.sub },
+      });
+    }
+  }
+
+  const response = NextResponse.json({ ok: true });
+  response.cookies.set(MEMBER_SESSION_COOKIE, memberSessionCookieValue(member.id), MEMBER_SESSION_COOKIE_OPTIONS);
   return response;
 }

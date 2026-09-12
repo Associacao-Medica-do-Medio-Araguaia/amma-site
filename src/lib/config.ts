@@ -57,11 +57,11 @@ export const session = {
 
 export const googleOAuth = {
   // Client OAuth "Web application" do Google Cloud Console — diferente da Service Account
-  // usada para o Calendar. Sem isso configurado, o botão "Entrar com Google" não aparece.
+  // usada para o Calendar. Usado pelo botão padrão do Google (Google Identity Services), que
+  // valida a origem da página em "Origens JavaScript autorizadas" (não usa redirect_uri).
+  // Sem isso configurado, o botão "Entrar com Google" não aparece.
   clientId: process.env.GOOGLE_OAUTH_CLIENT_ID ?? "",
-  clientSecret: process.env.GOOGLE_OAUTH_CLIENT_SECRET ?? "",
-  redirectUri: process.env.GOOGLE_OAUTH_REDIRECT_URI ?? "http://localhost:3000/api/auth/google/callback",
-  isConfigured: Boolean(process.env.GOOGLE_OAUTH_CLIENT_ID && process.env.GOOGLE_OAUTH_CLIENT_SECRET),
+  isConfigured: Boolean(process.env.GOOGLE_OAUTH_CLIENT_ID),
 } as const;
 
 export const cron = {

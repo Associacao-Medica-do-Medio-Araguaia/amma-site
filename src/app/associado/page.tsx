@@ -29,7 +29,7 @@ export default async function AssociadoPage({
       {!member && (
         <section className="mt-10">
           <h2 className="text-xl font-semibold">Login de associado</h2>
-          <AssociadoAuthForms googleEnabled={googleOAuth.isConfigured} />
+          <AssociadoAuthForms googleClientId={googleOAuth.isConfigured ? googleOAuth.clientId : undefined} />
         </section>
       )}
 
