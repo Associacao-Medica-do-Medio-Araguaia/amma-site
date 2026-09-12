@@ -1,14 +1,42 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Script from "next/script";
 import { BRAZIL_UF_CODES } from "@/lib/crm";
 
-export default function AssociadoAuthForms({ googleEnabled }: { googleEnabled: boolean }) {
+declare global {
+  interface Window {
+    handleGoogleCredentialResponse?: (response: { credential: string }) => void;
+  }
+}
+
+export default function AssociadoAuthForms({ googleClientId }: { googleClientId?: string }) {
   const router = useRouter();
   const [tab, setTab] = useState<"login" | "register">("login");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [googleError, setGoogleError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!googleClientId) return;
+    window.handleGoogleCredentialResponse = async (response) => {
+      setGoogleError(null);
+      const res = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ credential: response.credential }),
+      });
+      if (!res.ok) {
+        setGoogleError("Não foi possível entrar com o Google.");
+        return;
+      }
+      router.refresh();
+    };
+    return () => {
+      delete window.handleGoogleCredentialResponse;
+    };
+  }, [googleClientId, router]);
 
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -198,15 +226,25 @@ export default function AssociadoAuthForms({ googleEnabled }: { googleEnabled: b
         </form>
       )}
 
-      {googleEnabled && (
+      {googleClientId && (
         <div className="mt-4 flex flex-col items-center gap-2">
           <p className="text-xs text-muted-foreground">ou</p>
-          <a
-            href="/api/auth/google"
-            className="w-full text-center rounded-full border border-border px-6 py-3 text-sm font-medium hover:bg-surface-muted transition-colors"
-          >
-            Entrar com Google
-          </a>
+          <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
+          <div
+            id="g_id_onload"
+            data-client_id={googleClientId}
+            data-callback="handleGoogleCredentialResponse"
+            data-auto_prompt="false"
+          />
+          <div
+            className="g_id_signin"
+            data-type="standard"
+            data-shape="pill"
+            data-theme="outline"
+            data-text="signin_with"
+            data-size="large"
+          />
+          {googleError && <p className="text-red-600 text-xs">{googleError}</p>}
         </div>
       )}
     </div>
