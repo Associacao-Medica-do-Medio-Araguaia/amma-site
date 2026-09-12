@@ -10,7 +10,7 @@ export default function Footer() {
 
   return (
     <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground space-y-2">
-      <p>AMMA {year}. Direitos reservados.</p>
+      <p>&copy; AMMA {year}. Direitos reservados.</p>
       {isAdminArea ? (
         <Link href="/" className="block hover:underline">
           Voltar para a página principal

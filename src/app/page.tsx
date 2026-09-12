@@ -27,7 +27,7 @@ export default async function HomePage() {
             Associação Médica do Médio Araguaia
           </h1>
           <p className="mt-4 text-base sm:text-lg opacity-90">
-            Desde 1981, reunimos os médicos associados de Pontal do Araguaia e região — um espaço
+            Desde 1981, reunimos os médicos associados de Barra do Garças e Pontal do Araguaia — um espaço
             pensado para o bem-estar, a confraternização e o convívio entre colegas e famílias.
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
@@ -47,7 +47,6 @@ export default async function HomePage() {
             Nossa história
           </p>
           <h2 className="mt-1 text-2xl sm:text-3xl font-semibold text-primary">Quem somos</h2>
-          {/* TODO(cliente): expandir com a história completa da AMMA (fatos, marcos, fotos antigas). */}
           <p className="mt-4 text-muted-foreground">
             Fundada em 1981, a Associação Médica do Médio Araguaia (AMMA) reúne há mais de quatro
             décadas os médicos associados de Barra do Garças e Pontal do Araguaia, promovendo
@@ -55,10 +54,10 @@ export default async function HomePage() {
           </p>
           <p className="mt-4 text-muted-foreground">
             Nossa sede conta com área externa, piscina, salão de eventos e cozinha equipada — espaços
-            reservados exclusivamente para uso dos nossos associados e seus convidados.
+            reservados <span className="font-semibold">exclusivamente para uso dos nossos associados e seus convidados</span>.
           </p>
           <Link href="/institucional" className="mt-6 inline-block text-primary hover:underline text-sm font-medium">
-            Conheça nossa diretoria e estatuto →
+            Conheça nossa história completa →
           </Link>
         </div>
         <div className="grid grid-cols-2 gap-3">
