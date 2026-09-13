@@ -7,8 +7,26 @@ export default function CopyPixButton({ code }: { code: string }) {
 
   async function handleCopy() {
     try {
+      if (!navigator.clipboard || !window.isSecureContext) throw new Error("Clipboard API indisponível");
       await navigator.clipboard.writeText(code);
       setStatus("copied");
+      return;
+    } catch {
+      // Fallback pra navegadores/contextos onde a Clipboard API falha (permissão negada,
+      // contexto não seguro, embed em iframe restrito) — execCommand é mais antigo, mas
+      // funciona nesses casos porque não depende da Permissions API.
+    }
+    try {
+      const textarea = document.createElement("textarea");
+      textarea.value = code;
+      textarea.style.position = "fixed";
+      textarea.style.opacity = "0";
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      const copied = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      setStatus(copied ? "copied" : "error");
     } catch {
       setStatus("error");
     }
@@ -19,7 +37,7 @@ export default function CopyPixButton({ code }: { code: string }) {
       <button
         type="button"
         onClick={handleCopy}
-        className="rounded-md bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:opacity-90"
+        className="rounded-lg bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:opacity-90 transition-opacity"
       >
         {status === "copied" ? "Copiado!" : "📋 Copiar código Pix"}
       </button>

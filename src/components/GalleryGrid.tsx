@@ -11,7 +11,6 @@ interface Photo {
   id: number;
   src: string;
   alt: string;
-  span: string;
 }
 
 export default function GalleryGrid({ photos }: { photos: Photo[] }) {
@@ -83,13 +82,13 @@ export default function GalleryGrid({ photos }: { photos: Photo[] }) {
 
   return (
     <>
-      <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4 auto-rows-[160px]">
+      <div className="mt-8 grid grid-cols-2 sm:grid-cols-3 gap-4">
         {photos.map((photo, index) => (
           <button
             key={photo.id}
             type="button"
             onClick={() => setOpenIndex(index)}
-            className={`${photo.span} relative rounded-xl overflow-hidden border border-border bg-surface-muted cursor-zoom-in select-none`}
+            className="relative aspect-square rounded-xl overflow-hidden border border-border bg-surface-muted cursor-zoom-in select-none"
           >
             <Image
               src={photo.src}

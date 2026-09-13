@@ -119,70 +119,78 @@ export default function AssociadoAuthForms({ googleClientId }: { googleClientId?
     }
   }
 
+  const inputClass =
+    "rounded-lg border border-border/40 bg-surface px-3.5 py-3 text-[15px] text-foreground focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15";
+  const labelClass = "flex flex-col gap-1.5 text-[13px] font-semibold text-muted-foreground";
+
   return (
-    <div className="mt-6 max-w-sm">
-      <div className="flex gap-4 border-b border-border text-sm font-medium">
+    <div className="mt-7">
+      <div className="flex gap-5.5 border-b border-border/40 text-[14.5px] font-semibold">
         <button
           type="button"
           onClick={() => setTab("login")}
-          className={`pb-2 select-none ${tab === "login" ? "text-primary border-b-2 border-primary" : "text-muted-foreground"}`}
+          className={`pb-2.5 -mb-px select-none ${tab === "login" ? "text-secondary border-b-2 border-primary" : "text-border"}`}
         >
           Entrar
         </button>
         <button
           type="button"
           onClick={() => setTab("register")}
-          className={`pb-2 select-none ${tab === "register" ? "text-primary border-b-2 border-primary" : "text-muted-foreground"}`}
+          className={`pb-2.5 -mb-px select-none ${tab === "register" ? "text-secondary border-b-2 border-primary" : "text-border"}`}
         >
           Cadastrar
         </button>
       </div>
 
       {tab === "login" ? (
-        <form onSubmit={handleLogin} className="mt-4 flex flex-col gap-3 text-sm">
-          <label className="flex flex-col gap-1">
+        <form onSubmit={handleLogin} className="mt-6 flex flex-col gap-4">
+          <label className={labelClass}>
             E-mail
             <input
               type="email"
               required
               value={loginEmail}
               onChange={(e) => setLoginEmail(e.target.value)}
-              className="rounded-md border border-border bg-surface px-3 py-2"
+              className={inputClass}
             />
           </label>
-          <label className="flex flex-col gap-1">
-            Senha
+          <label className={labelClass}>
+            <span className="flex items-baseline justify-between">
+              <span>Senha</span>
+            </span>
             <input
               type="password"
               required
               value={loginPassword}
               onChange={(e) => setLoginPassword(e.target.value)}
-              className="rounded-md border border-border bg-surface px-3 py-2"
+              className={inputClass}
             />
           </label>
-          {error && <p className="text-red-600">{error}</p>}
+          {error && (
+            <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+          )}
           <button
             type="submit"
             disabled={submitting}
-            className="mt-1 rounded-full bg-primary text-primary-foreground px-6 py-3 font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="mt-1 rounded-lg bg-primary text-primary-foreground py-[15px] text-[15px] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {submitting ? "Entrando..." : "Entrar"}
           </button>
         </form>
       ) : (
-        <form onSubmit={handleRegister} className="mt-4 flex flex-col gap-3 text-sm">
-          <label className="flex flex-col gap-1">
+        <form onSubmit={handleRegister} className="mt-6 flex flex-col gap-4">
+          <label className={labelClass}>
             Nome completo
             <input
               type="text"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="rounded-md border border-border bg-surface px-3 py-2"
+              className={inputClass}
             />
           </label>
-          <div className="flex gap-3">
-            <label className="flex flex-1 flex-col gap-1">
+          <div className="grid grid-cols-[1fr_104px] gap-3">
+            <label className={`${labelClass} min-w-0`}>
               CRM
               <input
                 type="text"
@@ -190,17 +198,12 @@ export default function AssociadoAuthForms({ googleClientId }: { googleClientId?
                 placeholder="12345"
                 value={crm}
                 onChange={(e) => setCrm(e.target.value)}
-                className="rounded-md border border-border bg-surface px-3 py-2"
+                className={`${inputClass} min-w-0`}
               />
             </label>
-            <label className="flex w-24 flex-col gap-1">
+            <label className={`${labelClass} min-w-0`}>
               UF
-              <select
-                required
-                value={crmUf}
-                onChange={(e) => setCrmUf(e.target.value)}
-                className="rounded-md border border-border bg-surface px-3 py-2"
-              >
+              <select required value={crmUf} onChange={(e) => setCrmUf(e.target.value)} className={`${inputClass} min-w-0`}>
                 <option value="" disabled>
                   --
                 </option>
@@ -212,43 +215,48 @@ export default function AssociadoAuthForms({ googleClientId }: { googleClientId?
               </select>
             </label>
           </div>
-          <label className="flex flex-col gap-1">
+          <label className={labelClass}>
             E-mail
             <input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="rounded-md border border-border bg-surface px-3 py-2"
+              className={inputClass}
             />
           </label>
-          <label className="flex flex-col gap-1">
-            WhatsApp (com DDD)
-            <input
-              type="tel"
-              required
-              placeholder="(66) 90000-0000"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="rounded-md border border-border bg-surface px-3 py-2"
-            />
-          </label>
-          <label className="flex flex-col gap-1">
-            Senha
-            <input
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="rounded-md border border-border bg-surface px-3 py-2"
-            />
-          </label>
-          {error && <p className="text-red-600">{error}</p>}
+          <div className="grid grid-cols-2 gap-3">
+            <label className={`${labelClass} min-w-0`}>
+              WhatsApp (com DDD)
+              <input
+                type="tel"
+                required
+                placeholder="(66) 90000-0000"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className={`${inputClass} min-w-0`}
+              />
+            </label>
+            <label className={`${labelClass} min-w-0`}>
+              Senha
+              <input
+                type="password"
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={`${inputClass} min-w-0`}
+              />
+            </label>
+          </div>
+          <p className="-mt-2 text-[12.5px] text-border">Mínimo de 6 caracteres.</p>
+          {error && (
+            <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+          )}
           <button
             type="submit"
             disabled={submitting}
-            className="mt-1 rounded-full bg-primary text-primary-foreground px-6 py-3 font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+            className="mt-1 rounded-lg bg-primary text-primary-foreground py-[15px] text-[15px] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
           >
             {submitting ? "Cadastrando..." : "Cadastrar"}
           </button>
@@ -256,8 +264,12 @@ export default function AssociadoAuthForms({ googleClientId }: { googleClientId?
       )}
 
       {googleClientId && (
-        <div className="mt-4 flex flex-col items-center gap-2">
-          <p className="text-xs text-muted-foreground">ou</p>
+        <div className="mt-6 flex flex-col items-center gap-4">
+          <div className="w-full flex items-center gap-3.5">
+            <span className="flex-1 h-px bg-border/30" />
+            <span className="text-[12.5px] text-border">ou</span>
+            <span className="flex-1 h-px bg-border/30" />
+          </div>
           <Script
             src="https://accounts.google.com/gsi/client"
             strategy="afterInteractive"
@@ -267,6 +279,14 @@ export default function AssociadoAuthForms({ googleClientId }: { googleClientId?
           {googleError && <p className="text-red-600 text-xs">{googleError}</p>}
         </div>
       )}
+
+      <p className="md:text-center mt-6 text-[13.5px] leading-relaxed text-muted-foreground">
+        Ainda não tem acesso?{" "}
+        <button type="button" onClick={() => setTab("register")} className="font-semibold text-secondary">
+          Cadastre-se com seu CRM
+        </button>{" "}
+        — a verificação é automática e leva alguns segundos.
+      </p>
     </div>
   );
 }

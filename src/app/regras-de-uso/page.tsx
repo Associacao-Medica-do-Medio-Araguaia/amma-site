@@ -8,23 +8,28 @@ export default async function RegrasDeUsoPage() {
   const spaces = await prisma.space.findMany({ orderBy: { name: "asc" } });
 
   return (
-    <div className="flex-1 mx-auto max-w-3xl px-6 py-12 w-full">
-      <h1 className="text-2xl font-semibold text-primary">Regras de Uso</h1>
-      <p className="mt-2 rounded-lg bg-amber-100 text-amber-900 text-sm px-4 py-2 inline-block">
-        Reservas exclusivas para médicos associados à AMMA.
-      </p>
-      <p className="mt-2 text-sm text-muted-foreground">
-        Horários, capacidade e condições de reserva de cada espaço.
-      </p>
+    <div className="flex-1">
+      <div className="bg-linear-to-b from-accent-soft to-background">
+        <div className="mx-auto max-w-7xl px-6 py-11 md:py-[46px]">
+          <p className="text-[11.5px] font-semibold uppercase tracking-[.2em] text-secondary">Regras de uso</p>
+          <h1 className="mt-3.5 text-[32px] md:text-[44px] leading-[1.1] md:leading-[1.08] font-serif font-semibold tracking-[-.02em] text-foreground">
+            Horários, capacidade e condições
+          </h1>
+          <p className="mt-4 max-w-[600px] text-[15px] md:text-[16.5px] leading-relaxed text-muted-foreground">
+            Cada espaço tem suas próprias regras de reserva. Reservas exclusivas para médicos
+            associados à AMMA.
+          </p>
+        </div>
+      </div>
 
-      <div className="mt-8 flex flex-col gap-6">
+      <div className="mx-auto max-w-7xl px-6 pt-11 md:pt-[44px] grid md:grid-cols-2 gap-[18px]">
         {spaces.map((space) => {
           const shiftOptions = parseShiftOptions(space.shiftOptions);
           const isHourly = space.pricingUnit === "HOURLY";
           return (
-            <div key={space.id} className="rounded-lg border border-border bg-surface p-5">
-              <h2 className="font-semibold text-primary">{space.name}</h2>
-              <ul className="mt-3 text-sm text-muted-foreground space-y-1 list-disc list-inside">
+            <div key={space.id} className="rounded-2xl border border-border/40 bg-surface p-6">
+              <h2 className="text-[21px] font-semibold text-secondary">{space.name}</h2>
+              <ul className="mt-3.5 list-disc pl-[18px] text-[14.5px] leading-[1.8] text-muted-foreground space-y-0.5">
                 {space.capacity != null && <li>Capacidade máxima: {space.capacity} convidados</li>}
                 <li>Antecedência mínima para reservar: {space.minAdvanceDays} dias</li>
                 {isHourly ? (
@@ -58,21 +63,25 @@ export default async function RegrasDeUsoPage() {
         })}
       </div>
 
-      <section className="mt-10">
-        <h2 className="text-xl font-semibold">Cancelamento</h2>
-        <p className="mt-3 text-sm text-muted-foreground">
-          O cancelamento pelo associado pode ser feito com até 7 dias de antecedência da data do
-          evento. Nesse caso, é devolvido o valor já pago referente aos 70% restantes — o sinal de
-          30% pago no ato da reserva fica retido como taxa de limpeza. Se o cancelamento for feito
-          pela AMMA, todo o valor pago é devolvido integralmente.
-        </p>
-      </section>
-
-      <section className="mt-10">
-        <h2 className="text-xl font-semibold">Normas de convivência</h2>
-        {/* TODO(cliente): regras específicas de convivência, barulho, uso de área comum etc. */}
-        <p className="mt-3 text-sm text-muted-foreground">Normas detalhadas em breve.</p>
-      </section>
+      <div className="mx-auto max-w-7xl px-6 py-11 md:py-[52px] grid md:grid-cols-[1.4fr_1fr] gap-[18px] items-start">
+        <div className="rounded-2xl bg-foreground text-accent-soft p-[26px]">
+          <h2 className="text-[21px] font-semibold text-white">Cancelamento</h2>
+          <p className="mt-3 text-[15px] leading-[1.7] text-accent-soft/90">
+            O cancelamento pelo associado pode ser feito com até{" "}
+            <strong className="text-surface-muted">7 dias de antecedência</strong> da data do
+            evento. Nesse caso, é devolvido o valor já pago referente aos 70% restantes — o sinal
+            de 30% fica retido como taxa de limpeza. Se o cancelamento for feito pela AMMA, todo o
+            valor pago é devolvido integralmente.
+          </p>
+        </div>
+        <div className="rounded-2xl bg-accent-soft p-[26px]">
+          <h2 className="text-[21px] font-semibold text-foreground">Normas de convivência</h2>
+          {/* TODO(cliente): regras específicas de convivência, barulho, uso de área comum etc. */}
+          <p className="mt-3 text-[15px] leading-[1.7] text-muted-foreground">
+            Conteúdo a receber do cliente: regras de convivência, barulho e uso das áreas comuns.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
