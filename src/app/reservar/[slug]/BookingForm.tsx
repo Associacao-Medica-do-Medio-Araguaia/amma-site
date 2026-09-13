@@ -129,108 +129,128 @@ export default function BookingForm({
     }
   }
 
+  const selectClass =
+    "rounded-lg border border-border/40 bg-surface px-3.5 py-3 text-[15px] text-foreground focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15";
+  const labelClass = "flex flex-col gap-1.5 text-[13px] font-semibold text-muted-foreground";
+
   return (
-    <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-4 max-w-md">
+    <form onSubmit={handleSubmit} className="rounded-2xl border border-border/40 bg-surface p-6 flex flex-col gap-5">
       <div>
-        <p className="text-sm mb-2">Escolha a data</p>
-        <AvailabilityCalendar
-          minDate={minDate}
-          busyDates={busyDates}
-          selectedDate={date}
-          onSelect={(d) => {
-            setError(null);
-            setDate(d);
-          }}
-        />
+        <p className={labelClass}>Escolha a data</p>
+        <div className="mt-1.5">
+          <AvailabilityCalendar
+            minDate={minDate}
+            busyDates={busyDates}
+            selectedDate={date}
+            onSelect={(d) => {
+              setError(null);
+              setDate(d);
+            }}
+          />
+        </div>
       </div>
 
       {shiftOptions.length > 0 && (
-        <fieldset className="flex flex-col gap-1 text-sm">
-          <legend className="mb-1">Turno</legend>
-          {shiftOptions.map((option) => (
-            <label key={option.label} className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="shift"
-                value={option.label}
-                checked={shiftLabel === option.label}
-                onChange={() => {
-                  setError(null);
-                  setShiftLabel(option.label);
-                }}
-              />
-              {option.label}
-            </label>
-          ))}
+        <fieldset className="flex flex-col gap-2">
+          <legend className="text-[13px] font-semibold text-muted-foreground">Turno</legend>
+          <div className="flex flex-wrap gap-2">
+            {shiftOptions.map((option) => (
+              <label
+                key={option.label}
+                className={`cursor-pointer rounded-lg border px-3.5 py-2.5 text-[14px] font-medium transition-colors ${
+                  shiftLabel === option.label
+                    ? "border-primary bg-accent-soft text-secondary"
+                    : "border-border/40 text-foreground hover:border-primary"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="shift"
+                  value={option.label}
+                  checked={shiftLabel === option.label}
+                  onChange={() => {
+                    setError(null);
+                    setShiftLabel(option.label);
+                  }}
+                  className="sr-only"
+                />
+                {option.label}
+              </label>
+            ))}
+          </div>
         </fieldset>
       )}
 
       {isHourly && (
-        <div className="flex flex-col gap-3 text-sm">
+        <div className="flex flex-col gap-4">
           {dayInfo && dayInfo.bookedRanges.length > 0 && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[13px] text-muted-foreground">
               Horários já reservados nesse dia:{" "}
               {dayInfo.bookedRanges.map(([s, e]) => `${s}h-${e}h`).join(", ")}
             </p>
           )}
           {dayInfo?.latestEndHour != null && (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-[13px] text-muted-foreground">
               Já há um evento reservado nesse dia — a quadra só pode ser usada até{" "}
               {dayInfo.latestEndHour}h.
             </p>
           )}
-          <label className="flex flex-col gap-1">
-            Duração
-            <select
-              value={hours}
-              onChange={(e) => {
-                setError(null);
-                setHours(Number(e.target.value));
-              }}
-              className="rounded-md border border-border bg-surface px-3 py-2"
-            >
-              {Array.from({ length: maxHoursPerBooking ?? 1 }, (_, i) => i + 1).map((h) => (
-                <option key={h} value={h}>
-                  {h}h
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1">
-            Horário de início
-            <select
-              value={startHour}
-              onChange={(e) => {
-                setError(null);
-                setStartHour(Number(e.target.value));
-              }}
-              className="rounded-md border border-border bg-surface px-3 py-2"
-            >
-              {hourOptions.length === 0 && <option value={startHour}>Sem horário disponível</option>}
-              {hourOptions.map((h) => (
-                <option key={h} value={h}>
-                  {h}h às {h + hours}h
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="grid grid-cols-2 gap-3">
+            <label className={labelClass}>
+              Duração
+              <select
+                value={hours}
+                onChange={(e) => {
+                  setError(null);
+                  setHours(Number(e.target.value));
+                }}
+                className={selectClass}
+              >
+                {Array.from({ length: maxHoursPerBooking ?? 1 }, (_, i) => i + 1).map((h) => (
+                  <option key={h} value={h}>
+                    {h}h
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={labelClass}>
+              Horário de início
+              <select
+                value={startHour}
+                onChange={(e) => {
+                  setError(null);
+                  setStartHour(Number(e.target.value));
+                }}
+                className={selectClass}
+              >
+                {hourOptions.length === 0 && <option value={startHour}>Sem horário disponível</option>}
+                {hourOptions.map((h) => (
+                  <option key={h} value={h}>
+                    {h}h às {h + hours}h
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
         </div>
       )}
 
-      <p className="text-sm">
+      <p className="text-[15px] text-foreground">
         {paymentType === "FULL" ? "Valor a pagar" : "Sinal a pagar agora"}:{" "}
-        <span className="font-medium">{formatCentsToBRL(depositCents)}</span>
+        <span className="font-semibold text-secondary">{formatCentsToBRL(depositCents)}</span>
         {isHourly && (
           <span className="text-muted-foreground"> ({formatCentsToBRL(totalCents)} total)</span>
         )}
       </p>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+      )}
 
       <button
         type="submit"
         disabled={submitting}
-        className="mt-2 rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+        className="rounded-lg bg-primary text-primary-foreground py-[15px] text-[15px] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
       >
         {submitting ? "Enviando..." : "Continuar para pagamento"}
       </button>

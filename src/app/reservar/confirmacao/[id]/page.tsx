@@ -6,6 +6,7 @@ import { formatCentsToBRL } from "@/lib/money";
 import { formatDatePtBR } from "@/lib/dates";
 import { buildStaticPixPayload } from "@/lib/pix";
 import { email as emailConfig, whatsapp as whatsappConfig } from "@/lib/config";
+import CopyPixButton from "@/components/CopyPixButton";
 
 export default async function BookingConfirmationPage({
   params,
@@ -22,66 +23,79 @@ export default async function BookingConfirmationPage({
   const qrCodeDataUrl = await QRCode.toDataURL(pixPayload, { margin: 1, width: 280 });
 
   return (
-    <div className="flex-1 mx-auto max-w-2xl px-6 py-12 w-full">
-      <h1 className="text-2xl font-semibold">Reserva recebida!</h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        {booking.space.name} em {formatDatePtBR(booking.date)}
-        {booking.shiftLabel ? ` — ${booking.shiftLabel}` : ""}
-        {booking.startHour != null && !booking.shiftLabel
-          ? ` — ${booking.startHour}h às ${booking.startHour + (booking.hours ?? 0)}h`
-          : ""}
-        . Código da reserva: <span className="font-mono">{booking.id}</span>
-      </p>
-
-      <div className="mt-8 rounded-lg border border-border bg-surface p-6 flex flex-col items-center text-center">
-        <p className="text-sm text-muted-foreground">Valor a pagar agora</p>
-        <p className="text-3xl font-semibold mt-1">{formatCentsToBRL(amountDue)}</p>
-
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={qrCodeDataUrl} alt="QR Code Pix" className="mt-6 rounded-md" />
-
-        <p className="mt-4 text-xs text-muted-foreground">Pix copia e cola</p>
-        <textarea
-          readOnly
-          value={pixPayload}
-          rows={3}
-          className="mt-2 w-full text-xs font-mono rounded-md border border-border bg-background p-2"
-        />
+    <div className="flex-1">
+      <div className="bg-linear-to-b from-accent-soft to-background">
+        <div className="mx-auto max-w-7xl px-6 py-11 md:py-[46px]">
+          <p className="text-[11.5px] font-semibold uppercase tracking-[.2em] text-secondary">Reserva confirmada</p>
+          <h1 className="mt-3.5 text-[32px] md:text-[44px] leading-[1.1] md:leading-[1.08] font-serif font-semibold tracking-[-.02em] text-foreground">
+            Reserva recebida!
+          </h1>
+          <p className="mt-4 max-w-[620px] text-[15px] md:text-[16.5px] leading-relaxed text-muted-foreground">
+            {booking.space.name} em {formatDatePtBR(booking.date)}
+            {booking.shiftLabel ? ` — ${booking.shiftLabel}` : ""}
+            {booking.startHour != null && !booking.shiftLabel
+              ? ` — ${booking.startHour}h às ${booking.startHour + (booking.hours ?? 0)}h`
+              : ""}
+            . Código da reserva: <span className="font-mono text-foreground">{booking.id}</span>
+          </p>
+        </div>
       </div>
 
-      <div className="mt-8 rounded-lg border border-border bg-surface p-6 text-sm space-y-3">
-        <p className="font-medium">Depois de pagar, envie o comprovante:</p>
-        <ul className="list-disc list-inside space-y-1">
-          <li>
-            Por e-mail: <span className="font-medium">{emailConfig.adminNotificationEmail}</span>
-          </li>
-          <li>
-            Ou pelo WhatsApp: <span className="font-medium">{whatsappConfig.displayNumber}</span>
-          </li>
-        </ul>
-        <p className="text-muted-foreground">
-          Inclua o código da reserva (<span className="font-mono">{booking.id}</span>) na
-          mensagem para agilizar a confirmação.
-        </p>
-        {booking.status === "AWAITING_DEPOSIT" && booking.finalCents > 0 && (
-          <p className="text-muted-foreground">
-            Faltando {booking.space.finalDueDays} dias para a data reservada, enviaremos um
-            lembrete por e-mail para o pagamento dos{" "}
-            {formatCentsToBRL(booking.finalCents)} restantes. Se o pagamento não for
-            identificado até o prazo, a reserva será cancelada automaticamente.
-          </p>
-        )}
-        {booking.status === "AWAITING_DEPOSIT" && booking.finalCents === 0 && (
-          <p className="text-muted-foreground">
-            Esse é um pagamento único. Se não for identificado até{" "}
-            {formatDatePtBR(booking.finalDueDate)}, a reserva será cancelada automaticamente.
-          </p>
-        )}
-      </div>
+      <div className="mx-auto max-w-2xl px-6 py-11 md:py-[52px] flex flex-col gap-5">
+        <div className="rounded-2xl border border-border/40 bg-surface p-6 md:p-8 flex flex-col items-center text-center">
+          <p className="text-sm text-muted-foreground">Valor a pagar agora</p>
+          <p className="mt-1 text-3xl font-bold text-secondary">{formatCentsToBRL(amountDue)}</p>
 
-      <Link href="/" className="mt-8 inline-block text-sm underline">
-        Voltar para a página inicial
-      </Link>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={qrCodeDataUrl} alt="QR Code Pix" className="mt-6 rounded-xl" />
+
+          <CopyPixButton code={pixPayload} />
+
+          <p className="mt-6 text-[12.5px] font-semibold uppercase tracking-[.14em] text-border">
+            Ou copie manualmente
+          </p>
+          <textarea
+            readOnly
+            value={pixPayload}
+            rows={3}
+            className="mt-2 w-full text-xs font-mono rounded-lg border border-border/40 bg-background p-3"
+          />
+        </div>
+
+        <div className="rounded-2xl border border-border/40 bg-surface p-6 md:p-8 text-[14.5px] leading-relaxed text-muted-foreground space-y-3">
+          <p className="font-semibold text-foreground">Depois de pagar, envie o comprovante:</p>
+          <ul className="list-disc pl-5 space-y-1">
+            <li className="break-words">
+              Por e-mail: <span className="font-semibold text-foreground">{emailConfig.adminNotificationEmail}</span>
+            </li>
+            <li>
+              Ou pelo WhatsApp: <span className="font-semibold text-foreground">{whatsappConfig.displayNumber}</span>
+            </li>
+          </ul>
+          <p>
+            Inclua o código da reserva (<span className="font-mono text-foreground">{booking.id}</span>) na
+            mensagem para agilizar a confirmação.
+          </p>
+          {booking.status === "AWAITING_DEPOSIT" && booking.finalCents > 0 && (
+            <p>
+              Faltando {booking.space.finalDueDays} dias para a data reservada, enviaremos um
+              lembrete por e-mail para o pagamento dos{" "}
+              {formatCentsToBRL(booking.finalCents)} restantes. Se o pagamento não for
+              identificado até o prazo, a reserva será cancelada automaticamente.
+            </p>
+          )}
+          {booking.status === "AWAITING_DEPOSIT" && booking.finalCents === 0 && (
+            <p>
+              Esse é um pagamento único. Se não for identificado até{" "}
+              {formatDatePtBR(booking.finalDueDate)}, a reserva será cancelada automaticamente.
+            </p>
+          )}
+        </div>
+
+        <Link href="/" className="text-[13.5px] font-semibold text-secondary hover:text-primary transition-colors">
+          ← Voltar para a página inicial
+        </Link>
+      </div>
     </div>
   );
 }

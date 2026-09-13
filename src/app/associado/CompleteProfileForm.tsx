@@ -41,10 +41,14 @@ export default function CompleteProfileForm({
     }
   }
 
+  const inputClass =
+    "rounded-lg border border-border/40 bg-surface px-3.5 py-3 text-[15px] text-foreground focus:outline-none focus:border-primary focus:ring-3 focus:ring-primary/15";
+  const labelClass = "flex flex-col gap-1.5 text-[13px] font-semibold text-muted-foreground";
+
   return (
-    <form onSubmit={handleSubmit} className="mt-4 max-w-sm flex flex-col gap-3 text-sm">
-      <div className="flex gap-3">
-        <label className="flex flex-1 flex-col gap-1">
+    <form onSubmit={handleSubmit} className="mt-4 max-w-sm flex flex-col gap-4">
+      <div className="grid grid-cols-[1fr_104px] gap-3">
+        <label className={`${labelClass} min-w-0`}>
           CRM
           <input
             type="text"
@@ -52,17 +56,12 @@ export default function CompleteProfileForm({
             placeholder="12345"
             value={crm}
             onChange={(e) => setCrm(e.target.value)}
-            className="rounded-md border border-border bg-surface px-3 py-2"
+            className={`${inputClass} min-w-0`}
           />
         </label>
-        <label className="flex w-24 flex-col gap-1">
+        <label className={`${labelClass} min-w-0`}>
           UF
-          <select
-            required
-            value={crmUf}
-            onChange={(e) => setCrmUf(e.target.value)}
-            className="rounded-md border border-border bg-surface px-3 py-2"
-          >
+          <select required value={crmUf} onChange={(e) => setCrmUf(e.target.value)} className={`${inputClass} min-w-0`}>
             <option value="" disabled>
               --
             </option>
@@ -74,7 +73,7 @@ export default function CompleteProfileForm({
           </select>
         </label>
       </div>
-      <label className="flex flex-col gap-1">
+      <label className={labelClass}>
         WhatsApp (com DDD)
         <input
           type="tel"
@@ -82,14 +81,16 @@ export default function CompleteProfileForm({
           placeholder="(66) 90000-0000"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          className="rounded-md border border-border bg-surface px-3 py-2"
+          className={inputClass}
         />
       </label>
-      {error && <p className="text-red-600">{error}</p>}
+      {error && (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+      )}
       <button
         type="submit"
         disabled={submitting}
-        className="mt-1 rounded-full bg-primary text-primary-foreground px-6 py-3 font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+        className="mt-1 rounded-lg bg-primary text-primary-foreground py-[15px] text-[15px] font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
       >
         {submitting ? "Salvando..." : "Concluir cadastro"}
       </button>
