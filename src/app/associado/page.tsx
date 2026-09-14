@@ -1,10 +1,11 @@
 import Image from "next/image";
+import { LogOut } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getCurrentMember } from "@/lib/memberAuth";
 import { googleOAuth, whatsapp as whatsappConfig } from "@/lib/config";
 import { formatCentsToBRL } from "@/lib/money";
 import { formatDatePtBR } from "@/lib/dates";
-import { BOOKING_STATUS_LABEL } from "@/lib/bookingStatus";
+import { BOOKING_STATUS_COLOR, BOOKING_STATUS_ICON, BOOKING_STATUS_LABEL } from "@/lib/bookingStatus";
 import type { MemberModel as Member } from "@/generated/prisma/models";
 import AssociadoAuthForms from "./AssociadoAuthForms";
 import CompleteProfileForm from "./CompleteProfileForm";
@@ -139,12 +140,17 @@ function MemberProfileCard({ member }: { member: Member }) {
           <dd>{member.phone ?? "—"}</dd>
         </div>
       </dl>
-
-      <form action="/api/associado/logout" method="post" className="mt-4">
-        <button type="submit" className="text-sm text-muted-foreground hover:cursor-pointer hover:underline">
-          Sair
-        </button>
-      </form>
+      <div className="mt-4 flex md:justify-start justify-center">
+        <form action="/api/associado/logout" method="post">
+          <button
+            type="submit"
+            className="cursor-pointer inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+            Sair
+          </button>
+        </form>
+      </div>
     </aside>
   );
 }
@@ -164,11 +170,16 @@ async function MemberBookings({ memberId }: { memberId: string }) {
         <p className="mt-4 text-sm text-muted-foreground">Você ainda não fez nenhuma reserva.</p>
       ) : (
         <ul className="mt-4 flex flex-col gap-3">
-          {bookings.map((booking) => (
+          {bookings.map((booking) => {
+            const StatusIcon = BOOKING_STATUS_ICON[booking.status];
+            return (
             <li key={booking.id} className="rounded-2xl border border-border/40 bg-surface p-4 text-sm">
               <div className="flex items-center justify-between">
                 <span className="font-medium">{booking.space.name}</span>
-                <span className="text-muted-foreground">{BOOKING_STATUS_LABEL[booking.status]}</span>
+                <span className={`inline-flex items-center gap-1.5 font-medium ${BOOKING_STATUS_COLOR[booking.status]}`}>
+                  <StatusIcon className="h-3.5 w-3.5" />
+                  {BOOKING_STATUS_LABEL[booking.status]}
+                </span>
               </div>
               <p className="mt-1 text-muted-foreground">
                 {formatDatePtBR(booking.date)}
@@ -181,7 +192,8 @@ async function MemberBookings({ memberId }: { memberId: string }) {
                 Total: {formatCentsToBRL(booking.totalCents)}
               </p>
             </li>
-          ))}
+            );
+          })}
         </ul>
       )}
     </section>

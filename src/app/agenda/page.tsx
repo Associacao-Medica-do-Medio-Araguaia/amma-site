@@ -2,9 +2,9 @@ import { calendar } from "@/lib/calendar";
 
 export default function AgendaPage() {
   return (
-    <div className="flex-1">
+    <div className="flex-1 pb-12 md:pb-8">
       <div className="bg-linear-to-b from-accent-soft to-background">
-        <div className="mx-auto max-w-7xl px-6 py-11 md:py-[46px] flex flex-wrap items-end justify-between gap-6">
+        <div className="mx-auto max-w-7xl px-6 pt-8 pb-4 md:pt-12 md:pb-6 flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className="text-[11.5px] font-semibold uppercase tracking-[.2em] text-secondary">Agenda da sede</p>
             <h1 className="mt-3.5 text-[32px] md:text-[44px] leading-[1.1] md:leading-[1.08] font-serif font-semibold tracking-[-.02em] text-foreground">
@@ -16,7 +16,7 @@ export default function AgendaPage() {
           </div>
           <div className="flex gap-5 text-[13.5px] text-muted-foreground">
             <span className="flex items-center gap-2">
-              <span className="w-[13px] h-[13px] rounded-[4px] bg-red-50 border border-red-200" />
+              <span className="w-[13px] h-[13px] rounded-[4px] bg-purple-50 border border-purple-200" />
               Ocupado
             </span>
             <span className="flex items-center gap-2">
@@ -31,7 +31,7 @@ export default function AgendaPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-9 md:py-[38px] pb-11 md:pb-[52px]">
+      <div className="mx-auto max-w-7xl px-6 pt-4 pb-6 md:pt-6">
         {calendar.isConfigured ? (
           <div className="rounded-[18px] border border-border/40 bg-surface p-2 md:p-6 overflow-hidden">
             <div className="h-[650px] w-full overflow-hidden rounded-xl">
@@ -55,10 +55,6 @@ export default function AgendaPage() {
         ) : (
           <p className="text-sm text-muted-foreground">A agenda ainda não foi configurada.</p>
         )}
-        <p className="mt-4 text-[13.5px] text-border">
-          A grade é a agenda do Google já usada no site — no celular ela troca para a visão em
-          lista.
-        </p>
       </div>
     </div>
   );

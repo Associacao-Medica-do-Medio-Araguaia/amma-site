@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { Menu } from "lucide-react";
 
 const NAV_LINKS = [
   { href: "/", label: "Início" },
@@ -111,8 +112,8 @@ export default function Nav({ memberName }: { memberName?: string }) {
         {/* Posicionado fora do fluxo (absolute), ancorado à direita do cabeçalho, pra não
             empurrar o layout quando o painel abre. */}
         <details ref={detailsRef} className="relative xl:hidden">
-          <summary className="flex h-9 w-9 items-center justify-center text-lg text-secondary cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden">
-            <span aria-hidden="true">☰</span>
+          <summary className="flex h-9 w-9 items-center justify-center text-secondary cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden">
+            <Menu aria-hidden="true" className="h-5 w-5" />
           </summary>
           <ul className="absolute right-0 top-full w-56 rounded-lg border border-border/60 bg-surface py-2 shadow-lg text-sm font-semibold text-muted-foreground z-20">
             {NAV_LINKS.map((link) => (

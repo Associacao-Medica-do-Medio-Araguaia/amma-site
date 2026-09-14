@@ -1,5 +1,6 @@
 import Link from "next/link";
 import QRCode from "qrcode";
+import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCentsToBRL } from "@/lib/money";
@@ -92,8 +93,12 @@ export default async function BookingConfirmationPage({
           )}
         </div>
 
-        <Link href="/" className="text-[13.5px] font-semibold text-secondary hover:text-primary transition-colors">
-          ← Voltar para a página inicial
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1 text-[13.5px] font-semibold text-secondary hover:text-primary transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Voltar para a página inicial
         </Link>
       </div>
     </div>
