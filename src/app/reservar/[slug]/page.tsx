@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCentsToBRL } from "@/lib/money";
@@ -23,11 +24,15 @@ export default async function SpaceBookingPage({
   const isHourly = space.pricingUnit === "HOURLY";
 
   return (
-    <div className="flex-1">
+    <div className="flex-1 pb-12 md:pb-8">
       <div className="bg-linear-to-b from-accent-soft to-background">
-        <div className="mx-auto max-w-7xl px-6 py-11 md:py-[46px]">
-          <Link href="/reservar" className="text-[13.5px] font-semibold text-secondary hover:text-primary transition-colors">
-            ← Escolher outro espaço
+        <div className="mx-auto max-w-7xl px-6 pt-8 pb-4 md:pt-12 md:pb-6">
+          <Link
+            href="/reservar"
+            className="inline-flex items-center gap-1.5 self-start rounded-full bg-foreground text-background text-[12px] font-semibold px-3.5 py-1.5 hover:opacity-80 transition-opacity"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Escolher outro espaço
           </Link>
           <p className="mt-4 text-[11.5px] font-semibold uppercase tracking-[.2em] text-secondary">Reservar</p>
           <h1 className="mt-3.5 text-[32px] md:text-[44px] leading-[1.1] md:leading-[1.08] font-serif font-semibold tracking-[-.02em] text-foreground">
@@ -39,7 +44,7 @@ export default async function SpaceBookingPage({
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-11 md:py-[52px] grid md:grid-cols-[1fr_340px] gap-[26px] md:gap-[34px] items-start">
+      <div className="mx-auto max-w-7xl px-6 pt-4 pb-6 md:pt-6 grid md:grid-cols-[1fr_340px] gap-[26px] md:gap-[34px] items-start">
         <div>
           {canBook ? (
             <BookingForm
@@ -129,7 +134,7 @@ export default async function SpaceBookingPage({
             )}
             {space.monthlyLimitPerMember != null && (
               <p className="mt-3 text-[13px] text-muted-foreground">
-                Limite por associado: {space.monthlyLimitPerMember}x por mês, até {space.yearlyLimitPerMember}x por
+                <span className="font-semibold text-foreground">Limite por associado:</span> {space.monthlyLimitPerMember}x por mês, até {space.yearlyLimitPerMember}x por
                 ano, neste espaço.
               </p>
             )}

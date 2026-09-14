@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatCentsToBRL } from "@/lib/money";
 import { formatDatePtBR } from "@/lib/dates";
-import { BOOKING_STATUS_LABEL } from "@/lib/bookingStatus";
+import { BOOKING_STATUS_COLOR, BOOKING_STATUS_ICON, BOOKING_STATUS_LABEL } from "@/lib/bookingStatus";
 
 export interface AdminBookingRow {
   id: string;
@@ -76,6 +76,7 @@ export default function AdminBookingsTable({ bookings }: { bookings: AdminBookin
       <div className="flex flex-col gap-4">
         {bookings.map((booking) => {
           const schedule = formatSchedule(booking);
+          const StatusIcon = BOOKING_STATUS_ICON[booking.status];
           return (
             <div key={booking.id} className="rounded-lg border border-border p-4 text-sm">
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-3">
@@ -106,7 +107,10 @@ export default function AdminBookingsTable({ bookings }: { bookings: AdminBookin
                   <div>{booking.customerPhone}</div>
                 </Field>
                 <Field label="Status">
-                  {BOOKING_STATUS_LABEL[booking.status]}
+                  <span className={`inline-flex items-center gap-1.5 font-medium ${BOOKING_STATUS_COLOR[booking.status]}`}>
+                    <StatusIcon className="h-3.5 w-3.5 shrink-0" />
+                    {BOOKING_STATUS_LABEL[booking.status]}
+                  </span>
                   {booking.status === "CANCELLED" && booking.cancelledReason && (
                     <div className="text-xs text-muted-foreground">{booking.cancelledReason}</div>
                   )}

@@ -17,9 +17,9 @@ export default async function ReservarPage() {
   const spaces = await prisma.space.findMany({ orderBy: { name: "asc" } });
 
   return (
-    <div className="flex-1">
+    <div className="flex-1 pb-12 md:pb-8">
       <div className="bg-linear-to-b from-accent-soft to-background">
-        <div className="mx-auto max-w-7xl px-6 py-11 md:py-[46px]">
+        <div className="mx-auto max-w-7xl px-6 pt-8 pb-4 md:pt-12 md:pb-6">
           <p className="text-[11.5px] font-semibold uppercase tracking-[.2em] text-secondary">Reservas</p>
           <h1 className="mt-3.5 text-[32px] md:text-[44px] leading-[1.1] md:leading-[1.08] font-serif font-semibold tracking-[-.02em] text-foreground">
             Escolha o espaço
@@ -35,7 +35,7 @@ export default async function ReservarPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-11 md:py-[52px] flex flex-col gap-4">
+      <div className="mx-auto max-w-7xl px-6 pt-4 pb-6 md:pt-6 flex flex-col gap-4">
         {spaces.map((space) => {
           const shiftOptions = parseShiftOptions(space.shiftOptions);
           const isHourly = space.pricingUnit === "HOURLY";

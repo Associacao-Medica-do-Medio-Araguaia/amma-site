@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface AvailabilityCalendarProps {
   /** "yyyy-mm-dd" — primeira data que pode ser selecionada. */
@@ -67,7 +68,7 @@ export default function AvailabilityCalendar({
           aria-label="Mês anterior"
           className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-muted disabled:opacity-30 disabled:hover:bg-transparent"
         >
-          ‹
+          <ChevronLeft className="h-4 w-4" />
         </button>
         <p className="text-sm font-medium">
           {MONTH_LABELS[viewMonth]} {viewYear}
@@ -79,7 +80,7 @@ export default function AvailabilityCalendar({
           aria-label="Próximo mês"
           className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-muted disabled:opacity-30 disabled:hover:bg-transparent"
         >
-          ›
+          <ChevronRight className="h-4 w-4" />
         </button>
       </div>
 

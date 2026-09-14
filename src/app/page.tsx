@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -89,9 +90,13 @@ export default async function HomePage() {
       <section className="mx-auto max-w-7xl px-6 py-14 md:py-16">
         <div className="flex items-baseline justify-between gap-4">
           <h2 className="font-serif text-2xl md:text-[30px] font-semibold text-foreground">Os espaços da sede</h2>
-          <Link href="/galeria" className="text-sm font-semibold text-secondary hover:text-primary transition-colors whitespace-nowrap">
-            <span className="hidden sm:inline">Ver galeria completa →</span>
-            <span className="sm:hidden">Ver galeria →</span>
+          <Link
+            href="/galeria"
+            className="inline-flex items-center gap-1 text-sm font-semibold text-secondary hover:text-primary transition-colors whitespace-nowrap"
+          >
+            <span className="hidden sm:inline">Ver galeria completa</span>
+            <span className="sm:hidden">Ver galeria</span>
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 

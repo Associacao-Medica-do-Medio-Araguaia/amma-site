@@ -236,7 +236,7 @@ export default function BookingForm({
       )}
 
       <p className="text-[15px] text-foreground">
-        {paymentType === "FULL" ? "Valor a pagar" : "Sinal a pagar agora"}:{" "}
+        {paymentType === "FULL" ? "Valor a pagar" : "Pagar agora"}:{" "}
         <span className="font-semibold text-secondary">{formatCentsToBRL(depositCents)}</span>
         {isHourly && (
           <span className="text-muted-foreground"> ({formatCentsToBRL(totalCents)} total)</span>

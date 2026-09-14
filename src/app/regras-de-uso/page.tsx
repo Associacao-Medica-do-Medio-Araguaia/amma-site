@@ -8,9 +8,9 @@ export default async function RegrasDeUsoPage() {
   const spaces = await prisma.space.findMany({ orderBy: { name: "asc" } });
 
   return (
-    <div className="flex-1">
+    <div className="flex-1 pb-12 md:pb-16">
       <div className="bg-linear-to-b from-accent-soft to-background">
-        <div className="mx-auto max-w-7xl px-6 py-11 md:py-[46px]">
+        <div className="mx-auto max-w-7xl px-6 pt-8 pb-4 md:pt-12 md:pb-6">
           <p className="text-[11.5px] font-semibold uppercase tracking-[.2em] text-secondary">Regras de uso</p>
           <h1 className="mt-3.5 text-[32px] md:text-[44px] leading-[1.1] md:leading-[1.08] font-serif font-semibold tracking-[-.02em] text-foreground">
             Horários, capacidade e condições
@@ -22,7 +22,7 @@ export default async function RegrasDeUsoPage() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 pt-11 md:pt-[44px] grid md:grid-cols-2 gap-[18px]">
+      <div className="mx-auto max-w-7xl px-6 pt-4 pb-3 md:pt-6 md:pb-4 grid md:grid-cols-2 gap-[18px]">
         {spaces.map((space) => {
           const shiftOptions = parseShiftOptions(space.shiftOptions);
           const isHourly = space.pricingUnit === "HOURLY";
@@ -63,7 +63,7 @@ export default async function RegrasDeUsoPage() {
         })}
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-11 md:py-[52px] grid md:grid-cols-[1.4fr_1fr] gap-[18px] items-start">
+      <div className="mx-auto max-w-7xl px-6 pt-3 pb-6 md:pt-4 grid md:grid-cols-[1.4fr_1fr] gap-[18px] items-start">
         <div className="rounded-2xl bg-foreground text-accent-soft p-[26px]">
           <h2 className="text-[21px] font-semibold text-white">Cancelamento</h2>
           <p className="mt-3 text-[15px] leading-[1.7] text-accent-soft/90">
@@ -78,7 +78,7 @@ export default async function RegrasDeUsoPage() {
           <h2 className="text-[21px] font-semibold text-foreground">Normas de convivência</h2>
           {/* TODO(cliente): regras específicas de convivência, barulho, uso de área comum etc. */}
           <p className="mt-3 text-[15px] leading-[1.7] text-muted-foreground">
-            Conteúdo a receber do cliente: regras de convivência, barulho e uso das áreas comuns.
+            Disponíveis em breve.
           </p>
         </div>
       </div>

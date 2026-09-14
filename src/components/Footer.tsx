@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { MessageCircle } from "lucide-react";
 import { whatsapp as whatsappConfig } from "@/lib/config";
 import { location } from "@/lib/location";
 
@@ -17,9 +18,9 @@ export default function Footer() {
         <div className="flex-1 min-w-[240px]">
           <h2 className="text-lg font-semibold text-white sm:text-2xl">
             <span className="sm:hidden">Precisa de ajuda?</span>
-            <span className="hidden sm:inline">Fale com a secretaria</span>
+            <span className="hidden sm:inline">Dúvidas? Fale conosco</span>
           </h2>
-          <p className="mt-2 text-sm text-accent-soft/80">{location.addressLines.join(" — ")}</p>
+          <p className="mt-2 max-w-md text-sm text-accent-soft/80">{location.addressLines.join(" — ")}</p>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-lg text-surface-muted sm:text-[19px]">{whatsappConfig.displayNumber}</span>
@@ -27,8 +28,9 @@ export default function Footer() {
             href={`https://wa.me/${whatsappDigits}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
           >
+            <MessageCircle className="h-4 w-4" />
             WhatsApp
           </a>
         </div>

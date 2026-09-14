@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Check, Copy } from "lucide-react";
 
 export default function CopyPixButton({ code }: { code: string }) {
   const [status, setStatus] = useState<"idle" | "copied" | "error">("idle");
@@ -37,9 +38,19 @@ export default function CopyPixButton({ code }: { code: string }) {
       <button
         type="button"
         onClick={handleCopy}
-        className="rounded-lg bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:opacity-90 transition-opacity"
+        className="inline-flex items-center gap-2 rounded-lg bg-primary text-primary-foreground px-6 py-3 text-sm font-semibold hover:opacity-90 transition-opacity"
       >
-        {status === "copied" ? "Copiado!" : "📋 Copiar código Pix"}
+        {status === "copied" ? (
+          <>
+            <Check className="h-4 w-4" />
+            Copiado!
+          </>
+        ) : (
+          <>
+            <Copy className="h-4 w-4" />
+            Copiar código Pix
+          </>
+        )}
       </button>
       {status === "error" && (
         <p className="mt-2 text-xs text-muted-foreground">
