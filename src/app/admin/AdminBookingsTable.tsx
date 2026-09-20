@@ -70,6 +70,32 @@ export default function AdminBookingsTable({ bookings }: { bookings: AdminBookin
     }
   }
 
+  async function deleteBooking(booking: AdminBookingRow) {
+    const hasPayment = booking.status === "AWAITING_FINAL_PAYMENT" || booking.status === "CONFIRMED";
+    const warning = hasPayment
+      ? "\n\nATENÇÃO: há pagamento registrado nesta reserva. Excluir NÃO gera devolução — se for o caso, devolva o valor por fora."
+      : "";
+    const confirmed = window.confirm(
+      `Excluir definitivamente a reserva de ${booking.customerName} (${booking.spaceName}, ${formatDatePtBR(new Date(booking.date))})? ` +
+        `Ela some do banco e o evento é removido do Google Agenda. Não dá para desfazer.${warning}`,
+    );
+    if (!confirmed) return;
+
+    setBusyId(booking.id);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/bookings/${booking.id}`, { method: "DELETE" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error ?? "Falha ao excluir a reserva.");
+        return;
+      }
+      router.refresh();
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-3">
       {error && <p className="text-sm text-red-600">{error}</p>}
@@ -129,42 +155,51 @@ export default function AdminBookingsTable({ bookings }: { bookings: AdminBookin
                 <Field label="Restante">{formatCentsToBRL(booking.finalCents)}</Field>
               </div>
 
-              {(booking.status === "AWAITING_DEPOSIT" || booking.status === "AWAITING_FINAL_PAYMENT") && (
-                <div className="mt-4 flex flex-wrap gap-2 border-t border-border/50 pt-3">
-                  {booking.status === "AWAITING_DEPOSIT" && (
-                    <button
-                      disabled={busyId === booking.id}
-                      onClick={() => callAction(booking.id, "confirm-deposit")}
-                      className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-xs disabled:opacity-50"
-                    >
-                      {booking.finalCents === 0 ? "Confirmar pagamento" : "Confirmar sinal recebido"}
-                    </button>
-                  )}
-                  {booking.status === "AWAITING_FINAL_PAYMENT" && (
-                    <button
-                      disabled={busyId === booking.id}
-                      onClick={() => callAction(booking.id, "confirm-final")}
-                      className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-xs disabled:opacity-50"
-                    >
-                      Confirmar restante recebido
-                    </button>
-                  )}
+              <div className="mt-4 flex flex-wrap gap-2 border-t border-border/50 pt-3">
+                {booking.status === "AWAITING_DEPOSIT" && (
                   <button
                     disabled={busyId === booking.id}
-                    onClick={() => callAction(booking.id, "cancel", { cancelledBy: "CUSTOMER" })}
-                    className="rounded-md border border-red-600 text-red-600 px-3 py-1.5 text-xs disabled:opacity-50"
+                    onClick={() => callAction(booking.id, "confirm-deposit")}
+                    className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-xs disabled:opacity-50"
                   >
-                    Cancelar (associado desistiu)
+                    {booking.finalCents === 0 ? "Confirmar pagamento" : "Confirmar sinal recebido"}
                   </button>
+                )}
+                {booking.status === "AWAITING_FINAL_PAYMENT" && (
                   <button
                     disabled={busyId === booking.id}
-                    onClick={() => callAction(booking.id, "cancel", { cancelledBy: "ADMIN" })}
-                    className="rounded-md border border-red-600 text-red-600 px-3 py-1.5 text-xs disabled:opacity-50"
+                    onClick={() => callAction(booking.id, "confirm-final")}
+                    className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-xs disabled:opacity-50"
                   >
-                    Cancelar (pela AMMA)
+                    Confirmar restante recebido
                   </button>
-                </div>
-              )}
+                )}
+                {(booking.status === "AWAITING_DEPOSIT" || booking.status === "AWAITING_FINAL_PAYMENT") && (
+                  <>
+                    <button
+                      disabled={busyId === booking.id}
+                      onClick={() => callAction(booking.id, "cancel", { cancelledBy: "CUSTOMER" })}
+                      className="rounded-md border border-red-600 text-red-600 px-3 py-1.5 text-xs disabled:opacity-50"
+                    >
+                      Cancelar (associado desistiu)
+                    </button>
+                    <button
+                      disabled={busyId === booking.id}
+                      onClick={() => callAction(booking.id, "cancel", { cancelledBy: "ADMIN" })}
+                      className="rounded-md border border-red-600 text-red-600 px-3 py-1.5 text-xs disabled:opacity-50"
+                    >
+                      Cancelar (pela AMMA)
+                    </button>
+                  </>
+                )}
+                <button
+                  disabled={busyId === booking.id}
+                  onClick={() => deleteBooking(booking)}
+                  className="ml-auto rounded-md text-muted-foreground underline px-3 py-1.5 text-xs disabled:opacity-50"
+                >
+                  Excluir definitivamente
+                </button>
+              </div>
             </div>
           );
         })}
