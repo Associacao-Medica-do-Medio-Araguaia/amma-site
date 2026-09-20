@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function AdminLoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -23,11 +21,15 @@ export default function AdminLoginPage() {
       if (!res.ok) {
         const data = await res.json();
         setError(data.error ?? "Erro ao entrar.");
+        setSubmitting(false);
         return;
       }
-      router.push("/admin");
-      router.refresh();
-    } finally {
+      // Navegação "dura" (não router.push) pra evitar que o Next reaproveite,
+      // no client-side router cache, o redirect pra /admin/login que aconteceu
+      // antes do login (o que fazia o clique parecer não fazer nada e só ir
+      // depois de recarregar a página manualmente).
+      window.location.href = "/admin";
+    } catch {
       setSubmitting(false);
     }
   }

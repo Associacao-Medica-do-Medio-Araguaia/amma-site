@@ -91,7 +91,19 @@ export default async function AdminPage({
         </form>
       </div>
 
-      <div className="mt-8 flex flex-col items-center gap-3">
+      <nav className="mt-6 flex items-center gap-1 rounded-full border border-border bg-surface p-1.5 shadow-sm w-fit">
+        <span className="rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-primary-foreground">
+          Reservas
+        </span>
+        <Link
+          href="/admin/espacos"
+          className="rounded-full px-4 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-primary hover:text-primary-foreground"
+        >
+          Espaços
+        </Link>
+      </nav>
+
+      <div className="mt-6 flex flex-col items-center gap-3">
         <div className="flex items-center gap-1 rounded-full border border-border bg-surface p-1.5 shadow-sm">
           <Link
             href={`/admin?year=${prev.year}&month=${prev.month}`}
